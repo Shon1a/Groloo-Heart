@@ -1,0 +1,8 @@
+target/
+
+# Deliberately NOT ignored, and this is the point of the file:
+#   Cargo.lock  — committed. Stredio-Heart ignored it, so no two builds of the
+#                 shipped .wasm ever provably used the same dependency graph.
+#   pkg/        — the wasm-bindgen output. It is a build artifact, but it is the
+#                 artifact the web shell actually loads, so it is versioned and
+#                 CI re-builds it to assert byte-equality.

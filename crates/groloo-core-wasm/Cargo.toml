@@ -1,0 +1,38 @@
+[package]
+name = "groloo-core-wasm"
+description = "wasm-bindgen binding for groloo-core — the JSON-string boundary, no domain logic."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+
+[lib]
+name = "groloo_core_wasm"
+# `cdylib` ONLY — what the wasm-bindgen CLI post-processes, and nothing more.
+#
+# `rlib` used to be here so a native `cargo test` could link the 44 boundary tests
+# while the boundary was temporarily housed in this crate. The boundary now lives
+# in the domain rlib, where `groloo-core/tests/boundary_is_reachable.rs` links it
+# externally and calls all 17 the way the Phase 5 FFI crate will. Keeping `rlib`
+# would mean every native build compiles a second copy of a crate no Rust links,
+# and would leave a door open for logic to drift back in behind a test.
+crate-type = ["cdylib"]
+
+[dependencies]
+# The complete list, and it is meant to look this thin: a forwarding shim parses
+# nothing and renders nothing, so it needs neither serde nor serde_json — those
+# belong to the crate that owns the JSON, which is where they now are. The graph
+# this artifact links is exactly serde + serde_json (via groloo-core) +
+# wasm-bindgen.
+groloo-core.workspace = true
+wasm-bindgen.workspace = true
+
+# Only pulled in on wasm. On a host build (which is what `cargo build --release`
+# and `cargo test` do on a dev machine) the hook has nothing to hook, and keeping
+# it target-scoped means the workspace still compiles natively without dragging a
+# browser-only crate into the graph.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook.workspace = true

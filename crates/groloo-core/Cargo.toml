@@ -1,0 +1,23 @@
+[package]
+name = "groloo-core"
+description = "Pure, I/O-free domain logic for GROLOO — one rule, every shell."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+build = "build.rs"
+
+[lib]
+name = "groloo_core"
+# rlib ONLY. Stredio-Heart declared `["rlib", "cdylib"]` on the domain crate, which
+# meant every shell target linked a dynamic library nobody could call — the
+# aarch64 cdylib exported no symbols at all. Binding surface belongs to the
+# binding crates (groloo-core-wasm today, groloo-core-ffi in Phase 5); this one
+# is a library other Rust links.
+crate-type = ["rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true

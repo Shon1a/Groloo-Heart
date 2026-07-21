@@ -1,0 +1,14 @@
+# Scratch space for the differential harness and the build script:
+#
+#   .artifacts/build/    `scripts/build-wasm.mjs` stages a release build here
+#                        before vendoring it, and the harness re-runs that script
+#                        to prove the shipped artifact is still what this tree
+#                        compiles to.
+#   .artifacts/shipped/  the vendored glue, mirrored so node will parse it as ESM.
+#                        The .wasm is never copied — the shipped bytes go straight
+#                        into initSync().
+#
+# All of it is reproducible in one command, and the artifact that MATTERS is
+# committed where it is served from: Stredio-Web/public/assets/groloo-core/.
+# A second, staler copy here is exactly the thing this phase is removing.
+.artifacts/

@@ -1,0 +1,63 @@
+[workspace]
+# Explicit because a virtual manifest does not inherit an edition, and therefore
+# does not inherit the edition's default resolver.
+resolver = "2"
+members = ["crates/groloo-core", "crates/groloo-core-wasm"]
+
+# Reserved: crates/groloo-core-ffi (UniFFI, Phase 5 / Android). It is deliberately
+# absent rather than stubbed — an empty crate in the members list is a build cost
+# and a review surface that buys nothing until there is a JNI shell to bind to.
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.96"
+license = "MIT"
+repository = "https://github.com/Shon1a/groloo-core"
+authors = ["Shon1a"]
+
+[workspace.dependencies]
+# The domain crate's entire dependency surface. Anything beyond these two in
+# crates/groloo-core is a review failure, not a decision: a pure, I/O-free core
+# that pulls a runtime is no longer portable to webOS, Android and node alike.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Pinned exactly, because the wasm-bindgen CLI that post-processes the .wasm must
+# be the same version as the crate that generated its metadata. A silent minor
+# bump here produces a "wasm-bindgen version mismatch" at build time at best and
+# a subtly wrong JS shim at worst. Installed CLI: 0.2.126.
+wasm-bindgen = "=0.2.126"
+console_error_panic_hook = "0.1"
+
+groloo-core = { path = "crates/groloo-core" }
+
+[profile.release]
+# Size first: this ships over the wire to a TV browser and sits in an APK.
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+
+# WHY "unwind" rather than Stredio-Heart's "abort" (problem 7).
+#
+# `panic = "abort"` turns any bug in the core into process death on the shells
+# that matter: on Android a `cdylib` built with abort raises SIGABRT and takes
+# the whole app down, and there is no `catch_unwind` seam to convert a bad
+# library record into a degraded-but-alive UI. Unwind keeps that seam open, and
+# it is the only setting under which the Phase 5 UniFFI crate can honour the
+# "every failure is a value, never a crash" contract the envelope describes.
+#
+# HONESTY, because this setting does NOT do what a reader might assume on web:
+# `wasm32-unknown-unknown` has no unwinding on stable Rust. On that target this
+# line is inert — a panic still traps the instance permanently and
+# `catch_unwind` catches nothing. The wasm defence is therefore layered
+# elsewhere and deliberately:
+#   1. crates/groloo-core denies unwrap/expect/panic/indexing/overflowing-
+#      arithmetic at the crate root, so panicking paths fail the build;
+#   2. crates/groloo-core-wasm installs console_error_panic_hook, so a panic
+#      that escapes (1) is at least legible in a TV devtools console;
+#   3. the shell treats any thrown value from a core call as terminal and stops
+#      calling the poisoned instance instead of retrying it.
+# This line is load-bearing for native/Android and documentary for wasm.
+panic = "unwind"
