@@ -11,7 +11,7 @@
  * function on both sides", it is "the same OBSERVABLE BEHAVIOUR, reached the way
  * each core actually offers it". Each family below therefore names the exact old
  * call sequence it is standing in for, and where possible that sequence is the one
- * Stredio-Web runs today rather than a tidier equivalent:
+ * Groloo-Web runs today rather than a tidier equivalent:
  *
  *   official collection  official.ts:58-66   AddonRuntime + official_payload_fetched
  *   library              heartLibrary.ts:44  LibraryRuntime.hydrate -> op -> snapshot
@@ -54,7 +54,7 @@
  * shared inputs
  * ------------------------------------------------------------------------ */
 
-/** The four cards Stredio-Web actually ships (`stores/official.ts:35-44`). */
+/** The four cards Groloo-Web actually ships (`stores/official.ts:35-44`). */
 const INLINE_SHIPPED = [
   { id: 'catalog', section: 'official', name: 'Catalog Rows', ver: 'v1.0.0', tags: ['catalog'], defaultInstalled: true, flags: { official: true, protected: true } },
   { id: 'providers', section: 'official', name: 'Streaming Services', ver: 'v1.0.0', tags: ['providers'], defaultInstalled: false, flags: { official: true, protected: true } },
@@ -692,7 +692,7 @@ const visibleRows = {
  * ------------------------------------------------------------------------ */
 
 export const UNCOMPARABLE = [
-  { fn: 'collection_addons_json', side: 'old-only', why: 'Folded into merge_official`s schema gate. Nothing in the new core answers this question separately, and nothing in Stredio-Web called it.' },
+  { fn: 'collection_addons_json', side: 'old-only', why: 'Folded into merge_official`s schema gate. Nothing in the new core answers this question separately, and nothing in Groloo-Web called it.' },
   { fn: 'set_progress', side: 'old-only', why: 'Deliberately absent from the new boundary (api.rs) — it fired every ~5s and copied the whole library through linear memory twice to write one key. The shell keeps that write; the rule stays testable as `Library::set_progress`.' },
   { fn: 'AddonRuntime.load_official / official_manifest_fetched / status', side: 'old-only', why: 'Effect-array plumbing for I/O the shell was performing itself. `official_payload_file` replaces the useful part of it and IS compared, above.' },
   { fn: 'AddonRuntime.toggle_addon', side: 'old-only', why: 'A one-line flip the shell already owns. It is USED by this harness to establish `install_at`, since 0.1.0 bound no other way to set it.' },

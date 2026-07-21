@@ -25,13 +25,13 @@ graceful-degradation value (the unmodified input, the inline defaults, `[]`).
 A shell that ignores `ok` behaves exactly as it does today; a shell that reads it
 can finally tell *empty* from *broken*.
 
-## Relationship to Stredio-Heart
+## Relationship to Groloo-Heart
 
 This crate is the successor to
-[`Stredio-Heart`](https://github.com/Shon1a/Stredio-Heart) (MIT, same copyright).
+[`Groloo-Heart`](https://github.com/Shon1a/Groloo-Heart) (MIT, same copyright).
 Heart's ~600 lines of real domain logic are carried across **behaviour-frozen**,
 and a differential harness pins the new core against the exact wasm build
-Stredio-Web ships today before anything is repointed. What does not come across is
+Groloo-Web ships today before anything is repointed. What does not come across is
 the Elm runtime around them:
 
 | Heart | Here | Why |

@@ -2,7 +2,7 @@
 //! tombstones that stop a removal on one device losing to an older copy on
 //! another.
 //!
-//! VENDORED from `Stredio-Heart@0.1.0 src/library.rs`. The merge rules, the caps
+//! VENDORED from `Groloo-Heart@0.1.0 src/library.rs`. The merge rules, the caps
 //! and the tombstone TTL are Heart's, unchanged, because they are also the web
 //! client's, the My List store's and the server's — four hand-maintained copies of
 //! one algorithm, none of which is tested against the others. Single-sourcing them

@@ -1,7 +1,7 @@
 /*
  * The artifact-freshness gate, and the size budget that rides along with it.
  *
- * THE FAILURE THIS EXISTS TO MAKE IMPOSSIBLE. Stredio-Heart committed its
+ * THE FAILURE THIS EXISTS TO MAKE IMPOSSIBLE. Groloo-Heart committed its
  * wasm-bindgen output to `web/` by hand and its CI never rebuilt it. A source
  * change with no manual rebuild therefore shipped a STALE core to every client,
  * indistinguishably from a correct one: green CI, green tests, and a television
@@ -27,7 +27,7 @@
  *   [5] stamp         Exactly one `<semver>+g<rev>` in the module, and its semver
  *                     equal to the workspace version — so bumping the version
  *                     without rebuilding is a build failure rather than a
- *                     mislabelled folder in Stredio-Web's `public/assets/`.
+ *                     mislabelled folder in Groloo-Web's `public/assets/`.
  *   [6] budget        Byte ceilings on the .wasm and on the JS glue.
  *
  * WHAT IT DOES NOT CATCH, exhaustively:
@@ -141,7 +141,7 @@ function kib(n) {
 if (!existsSync(committedDir)) {
   console.error(`::error::The committed artifact directory ${committedDir} does not exist.`);
   console.error('The wasm-bindgen output is a versioned deliverable in this repo, not a');
-  console.error('build by-product: Stredio-Web loads exactly these bytes. Produce it with');
+  console.error('build by-product: Groloo-Web loads exactly these bytes. Produce it with');
   console.error('  .github/scripts/build-wasm.sh pkg');
   console.error('and commit the result.');
   process.exit(1);

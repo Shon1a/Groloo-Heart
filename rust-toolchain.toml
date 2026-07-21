@@ -1,6 +1,6 @@
 [toolchain]
 # Pinned, not floating. Release-gate item: the wasm artifact committed to
-# Stredio-Web must be byte-reproducible from this repo, and a compiler upgrade
+# Groloo-Web must be byte-reproducible from this repo, and a compiler upgrade
 # changes codegen. Bump this deliberately, in its own change, and re-verify the
 # artifact hash — never as a side effect of a machine's `rustup update`.
 channel = "1.96.1"

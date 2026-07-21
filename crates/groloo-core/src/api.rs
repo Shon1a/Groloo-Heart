@@ -301,7 +301,7 @@ struct ReconcileResponse {
 /// This one replaces nothing in the shell today, and saying so plainly matters
 /// more than the function does. `/api/addon-state` exists server-side and has
 /// **zero clients** — there is not one occurrence of `addon-state` under
-/// `Stredio-Web/src`. Install state is `groloo.homeconfig` in localStorage,
+/// `Groloo-Web/src`. Install state is `groloo.homeconfig` in localStorage,
 /// device-local, never synced. This is the net-new piece that would wire it, and
 /// it is specified now because a shared living-room TV is precisely the device
 /// `ownerChanged` was written for.

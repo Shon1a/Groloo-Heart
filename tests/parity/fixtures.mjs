@@ -249,7 +249,7 @@ const URL_LEDGER = [
 
 const normalizeVsServer = {
   name: 'normalize_manifest_url  (vs server.js:1992)',
-  twin: { at: 'Stredio-server/server/server.js:1992  normalizeManifestUrl', verdict: 'keep' },
+  twin: { at: 'Groloo-server/server/server.js:1992  normalizeManifestUrl', verdict: 'keep' },
   ts: 'server.js:1992 normalizeManifestUrl(raw) -> string|null   [lifted from the server\'s own source text]',
   rust: 'normalize_manifest_url(raw) -> envelope{ data: string|null }',
   fixtures: URL_LEDGER.map((f) => ({ ...f, expect: f.server })),
@@ -265,7 +265,7 @@ const normalizeVsServer = {
 
 const normalizeVsClient = {
   name: 'normalize_manifest_url  (vs stores/addons.ts:203)',
-  twin: { at: 'Stredio-Web/src/stores/addons.ts:203  normalizeManifestUrl', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/stores/addons.ts:203  normalizeManifestUrl', verdict: 'delete' },
   ts: 'stores/addons.ts:203 normalizeManifestUrl(raw) -> string   [imported and run]',
   rust: 'normalize_manifest_url(raw) -> envelope{ data: string|null }',
   fixtures: URL_LEDGER.map((f) => ({
@@ -293,7 +293,7 @@ const normalizeVsClient = {
  * is that it will notice the day one of them does. */
 const baseUrl = {
   name: 'addon_base_url  (vs addonClient.ts:45)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:45-47  addonBaseUrl', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:45-47  addonBaseUrl', verdict: 'delete' },
   ts: 'addonBaseUrl(manifestUrl) -> string',
   rust: 'addon_base_url(manifestUrl) -> envelope{ data: string }',
   fixtures: [
@@ -320,7 +320,7 @@ const M = (extra) => ({ id: 'org.x', name: 'X', ...extra });
 
 const hasResource = {
   name: 'manifest_has_resource  (vs addonClient.ts:49)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:49-53  addonHasResource', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:49-53  addonHasResource', verdict: 'delete' },
   ts: 'addonHasResource({manifest}, resource, type?) -> boolean',
   rust: 'manifest_has_resource(manifestJson, resource, typ) -> envelope{ data: boolean }',
   /* Every fixture is run for all four (resource, type) pairs below, so one entry
@@ -375,7 +375,7 @@ const streamFixture = (id, streams, extra = {}) => ({ id, expect: 'match', body:
 
 const streamParse = {
   name: 'stream_parse  (vs addonClient.ts:93-126)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:65-111 + :122  detectQuality, extractSize, FLAG_LANG, parseStreamLangs, mapAddonStream', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:65-111 + :122  detectQuality, extractSize, FLAG_LANG, parseStreamLangs, mapAddonStream', verdict: 'delete' },
   ts: 'collectAddonStreams(videoId, type) with a recording fetch -> AddonStream[]',
   rust: 'stream_parse(responseJson, addonName) -> envelope{ data: AddonStream[] }',
   fixtures: [
@@ -536,7 +536,7 @@ const streamParse = {
  * correctness one — which is exactly what the twin rule needs. */
 const resourcePath = {
   name: 'addon_resource_path  (vs addonClient.ts:118 and :161)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:118 and :161  the two hand-built path expressions', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:118 and :161  the two hand-built path expressions', verdict: 'delete' },
   ts: 'the URL collectAddonStreams / fetchAddonCatalog actually requested',
   rust: 'addonBaseUrl + addon_resource_path(resource, mediaType, id) -> envelope{ data: string }',
   fixtures: [
@@ -574,7 +574,7 @@ const metaFixture = (id, metas, extra = {}) => ({ id, expect: 'match', body: { m
 
 const catalogMetas = {
   name: 'catalog_metas  (vs addonClient.ts:130-163)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:128-141 + :162  CatalogMeta, mapCatalogMeta, the poster filter', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:128-141 + :162  CatalogMeta, mapCatalogMeta, the poster filter', verdict: 'delete' },
   ts: 'fetchAddonCatalog(catalog) with a recording fetch -> MediaItem[]',
   rust: 'catalog_metas(responseJson) -> envelope{ data: MediaItem[] }',
   fixtures: [
@@ -660,7 +660,7 @@ const WHY_DISPLAY_FALLBACK = 'The twin invents a display string when the add-on 
 
 const addonCatalogs = {
   name: 'addon_catalogs  (vs addonClient.ts:147-156)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:147-156  listAddonCatalogs', verdict: 'delete', obligation: 'the call site must apply `name ?? addonName` — see D-display' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:147-156  listAddonCatalogs', verdict: 'delete', obligation: 'the call site must apply `name ?? addonName` — see D-display' },
   ts: 'listAddonCatalogs() over the real zustand store -> AddonCatalog[]',
   rust: 'addon_catalogs(recordsJson) -> envelope{ data: CatalogEntry[] }',
   fixtures: [
@@ -685,7 +685,7 @@ const WHY_COLLATE = '`api.rs` declares this risk and this is where it is measure
 
 const orderLangs = {
   name: 'order_langs  (vs addonClient.ts:32-38)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:30-38  LANG_ORDER, orderLangs', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:30-38  LANG_ORDER, orderLangs', verdict: 'delete' },
   ts: 'orderLangs(langs) -> string[]',
   rust: 'order_langs(langsJson) -> envelope{ data: string[] }',
   fixtures: [
@@ -763,7 +763,7 @@ const VALIDATE_CASES = [
 
 const validateVsServer = {
   name: 'validate_manifest  (vs server.js:1947)',
-  twin: { at: 'Stredio-server/server/server.js:1947  validateManifest', verdict: 'keep' },
+  twin: { at: 'Groloo-server/server/server.js:1947  validateManifest', verdict: 'keep' },
   ts: 'server.js:1947 validateManifest(m) -> string|null   [lifted from the server\'s own source text]',
   rust: 'validate_manifest(manifestJson) -> envelope{ ok, error.detail }',
   fixtures: VALIDATE_CASES.map((f) => ({ ...f, expect: f.serverExpect })),
@@ -790,7 +790,7 @@ const WHY_VALIDATE = '`addons.ts:233` implements TWO of the four rules (`id` and
  * signed-out auth substitute keeps the write local. */
 const validateVsClient = {
   name: 'validate_manifest  (vs stores/addons.ts:233, driven through install())',
-  twin: { at: 'Stredio-Web/src/stores/addons.ts:233  the inline `!manifest.id || !manifest.name` check', verdict: 'delete' },
+  twin: { at: 'Groloo-Web/src/stores/addons.ts:233  the inline `!manifest.id || !manifest.name` check', verdict: 'delete' },
   ts: 'useAddons.install(url) with a recording fetch -> accepted | rejected',
   rust: 'validate_manifest(manifestJson) -> envelope{ ok }',
   fixtures: VALIDATE_CASES.filter((f) => f.manifest !== null).map((f) => {
@@ -847,7 +847,7 @@ const WHY_RANK_FILTER = 'STRUCTURAL, and deliberate. The twin FILTERS — a stre
 
 const rankStreams = {
   name: 'rank_streams  (vs DetailModal.tsx:281-282)',
-  twin: { at: 'Stredio-Web/src/lib/addonClient.ts:40-41 qualityRank + DetailModal.tsx:271 and :282', verdict: 'rewrite', obligation: 'rank_streams answers {ranked, summary} with indices and blocked reasons, not a filtered array — the two call sites are a UI change, not a substitution' },
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:40-41 qualityRank + DetailModal.tsx:271 and :282', verdict: 'rewrite', obligation: 'rank_streams answers {ranked, summary} with indices and blocked reasons, not a filtered array — the two call sites are a UI change, not a substitution' },
   ts: 'list.filter(langs).sort(qualityRank desc)   [transcribed from JSX, pinned to its source line]',
   rust: 'rank_streams(streamsJson, "{}") -> envelope{ data: { ranked, summary } }, projected back to streams',
   fixtures: [
@@ -917,7 +917,7 @@ const shellVideoId = (imdb, ep) => (ep ? `${imdb}:${ep.season}:${ep.ep}` : Strin
 
 const mediaKey = {
   name: 'media key round trip  (vs DetailModal.tsx:188 / :243 / :268)',
-  twin: { at: 'Stredio-Web/src/components/DetailModal/DetailModal.tsx:188, :243, :168, :268', verdict: 'unreachable', obligation: 'MediaRef is not exported at the boundary, so there is nothing for these expressions to be replaced BY. The round trip is proven; the deletion is not available.' },
+  twin: { at: 'Groloo-Web/src/components/DetailModal/DetailModal.tsx:188, :243, :168, :268', verdict: 'unreachable', obligation: 'MediaRef is not exported at the boundary, so there is nothing for these expressions to be replaced BY. The round trip is proven; the deletion is not available.' },
   ts: '`${id}:S${season}E${ep}` and `${imdb}:${season}:${ep}`   [transcribed from JSX, pinned]',
   rust: 'continue_watching().key + resume_position(key) + addon_resource_path(videoId)',
   fixtures: [

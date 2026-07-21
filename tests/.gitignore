@@ -9,6 +9,6 @@
 #                        into initSync().
 #
 # All of it is reproducible in one command, and the artifact that MATTERS is
-# committed where it is served from: Stredio-Web/public/assets/groloo-core/.
+# committed where it is served from: Groloo-Web/public/assets/groloo-core/.
 # A second, staler copy here is exactly the thing this phase is removing.
 .artifacts/

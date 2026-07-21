@@ -35,7 +35,7 @@
 //!
 //! ## What this is, and what it replaces
 //!
-//! This crate is the successor to [`Stredio-Heart`](https://github.com/Shon1a/Stredio-Heart).
+//! This crate is the successor to [`Groloo-Heart`](https://github.com/Shon1a/Groloo-Heart).
 //! Heart's ~600 lines of real domain logic are correct and are carried across
 //! unchanged; what does not come with them is the Elm runtime that wrapped them.
 //! Heart exposed `Model`/`Msg`/`update`/`Effect` and three *disconnected*
@@ -110,7 +110,7 @@
 //! **Adding a boundary function touches four files and only one of them is here.**
 //! `crates/groloo-core/src/api.rs` and `tests/boundary_is_reachable.rs` are in
 //! this crate; `scripts/build-wasm.mjs`'s `EXPORTS` list, the forwarding shim in
-//! `crates/groloo-core-wasm`, and `Stredio-Web/src/lib/heart.ts`'s `CoreExports`
+//! `crates/groloo-core-wasm`, and `Groloo-Web/src/lib/heart.ts`'s `CoreExports`
 //! are not. Until those three catch up, a new function is reachable from Rust and
 //! from `cargo test` but not from a browser — which is why the wasm build still
 //! passes: it checks that the names it knows about exist, not that it knows about
@@ -182,7 +182,7 @@ pub const CORE_VERSION: &str = concat!(
 ///
 /// The shell calls this immediately after instantiating the module, before it has
 /// any reason to trust the envelope format, and compares the answer to the
-/// pinned vendored folder name it loaded from. A mismatch means Stredio-Web is
+/// pinned vendored folder name it loaded from. A mismatch means Groloo-Web is
 /// running a core that is not the core it thinks it is, which is otherwise
 /// completely invisible. Being trustworthy before anything else is, this function
 /// must never fail and must never depend on anything that can.

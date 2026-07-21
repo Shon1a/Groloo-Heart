@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# The ONE sanctioned way to produce the WebAssembly artifact that Stredio-Web
+# The ONE sanctioned way to produce the WebAssembly artifact that Groloo-Web
 # ships. CI runs this script; a human rebuilding `pkg/` must run this script too.
 # Typing the two raw commands out of the README by hand produces bytes CI will
 # reject, and that is deliberate rather than unfortunate — read on.

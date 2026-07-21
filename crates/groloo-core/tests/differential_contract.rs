@@ -24,7 +24,7 @@ use groloo_core::library::{
 };
 use groloo_core::types::COLLECTION_SCHEMA;
 
-/// Frozen from `Stredio-Heart@0.1.0 library.rs:14-16`. The harness overflows each
+/// Frozen from `Groloo-Heart@0.1.0 library.rs:14-16`. The harness overflows each
 /// of these by hand (`bigHistory(70)`, `bigProgress(250)`) and asserts the survivor
 /// count, so a change here turns those fixtures into no-ops rather than failures.
 #[test]

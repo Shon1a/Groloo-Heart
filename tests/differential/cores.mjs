@@ -4,15 +4,15 @@
  *
  * THE OLD CORE is not a source tree — it is the exact artifact that is serving the
  * running app right now:
- *   Stredio-Web/public/assets/heart/0.1.0-5ecaa78/{stredio_heart.js, *_bg.wasm}
- * Reading it from there rather than rebuilding Stredio-Heart from source is the
+ *   Groloo-Web/public/assets/heart/0.1.0-5ecaa78/{stredio_heart.js, *_bg.wasm}
+ * Reading it from there rather than rebuilding Groloo-Heart from source is the
  * whole point. What has to keep working is the bytes on the device, not a tree
  * that happens to compile to something similar. Nothing here writes to that
  * folder; it is opened read-only and the app is never touched.
  *
  * THE NEW CORE is now read from exactly the same place, for exactly the same
  * reason:
- *   Stredio-Web/public/assets/groloo-core/<build>/{groloo_core.js, *_bg.wasm}
+ *   Groloo-Web/public/assets/groloo-core/<build>/{groloo_core.js, *_bg.wasm}
  *
  * ## Why the harness no longer builds its own copy
  *
@@ -44,7 +44,7 @@
  *
  * (1) and (2) throw before any fixture runs — a comparison against unknown bytes
  * is worse than no comparison. (3) is reported by `run.mjs` as a reservation
- * rather than thrown, because `heart.ts` belongs to Stredio-Web and re-vendoring
+ * rather than thrown, because `heart.ts` belongs to Groloo-Web and re-vendoring
  * legitimately makes its pin stale for as long as it takes to paste two lines; the
  * run still prints every fixture, and `--strict` still exits non-zero.
  *
@@ -73,7 +73,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..', '..');
-const WEB = resolve(REPO, '..', 'Stredio-Web');
+import { webRepo } from '../../scripts/sibling.mjs';
+const WEB = webRepo(REPO);
 
 /* The pinned, currently-shipping vendored artifacts. If either path stops
  * existing the harness must fail loudly rather than quietly compare the new core
@@ -107,7 +108,7 @@ function shippedDir() {
   if (!existsSync(ASSETS)) {
     throw new Error(
       `no vendored core at ${ASSETS}. The differential run compares against the ` +
-      'artifact Stredio-Web actually ships — build and vendor one with ' +
+      'artifact Groloo-Web actually ships — build and vendor one with ' +
       '`node scripts/build-wasm.mjs --prune` before running the gate.',
     );
   }
@@ -215,7 +216,7 @@ function assertShippedIsCurrent(shipped, staged) {
     `${drift.join('\n')}\n\n` +
     `Gating build ${shipped.build} would prove something about bytes nobody is going to run. ` +
     'Re-vendor first:\n\n    node scripts/build-wasm.mjs --prune\n\n' +
-    '…then update the pin in Stredio-Web/src/lib/heart.ts and run the gate again.',
+    '…then update the pin in Groloo-Web/src/lib/heart.ts and run the gate again.',
   );
 }
 
@@ -289,7 +290,7 @@ export const SHIPPED = (() => {
   return { dir, manifest };
 })();
 
-/** The core Stredio-Web ships — verified against its manifest, against a fresh
+/** The core Groloo-Web ships — verified against its manifest, against a fresh
  * build of this tree, and cross-checked against the shell's pin. */
 export async function loadNew() {
   assertShippedIsCurrent(SHIPPED.manifest, stagedBuild());
@@ -320,7 +321,7 @@ export async function loadNew() {
 }
 
 /** The shell-pin cross-check, for `run.mjs` to report. Not thrown: `heart.ts`
- * belongs to Stredio-Web, and re-vendoring makes its pin stale for exactly as long
+ * belongs to Groloo-Web, and re-vendoring makes its pin stale for exactly as long
  * as it takes to paste two lines. It is a reservation, and `--strict` treats every
  * reservation as a failure. */
 export function shellPinProblems() {

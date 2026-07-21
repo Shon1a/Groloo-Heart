@@ -3,7 +3,7 @@
 //!
 //! Heart's doctrine was "infallible by degradation": on any bad input, return the
 //! sensible fallback and say nothing. The degradation was right; the silence was
-//! not. Four call sites in Stredio-Web wrap every core call in
+//! not. Four call sites in Groloo-Web wrap every core call in
 //! `catch { return null }`, so a core that has stopped working and a core that
 //! legitimately has nothing to say are the same observation, and there is no
 //! telemetry that can tell them apart. That is problem 7, and it has been running

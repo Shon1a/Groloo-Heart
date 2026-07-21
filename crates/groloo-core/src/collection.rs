@@ -7,7 +7,7 @@
 //! re-section, or flip the toggle of a known id, and it can never introduce a
 //! stream source (neutral-conduit stance).
 //!
-//! VENDORED from `Stredio-Heart@0.1.0 src/collection.rs`, behaviour-frozen. Every
+//! VENDORED from `Groloo-Heart@0.1.0 src/collection.rs`, behaviour-frozen. Every
 //! guard, every allow-list and all six of its tests come across intact. The one
 //! structural change is that [`MergeReport`] now records *why* a record was
 //! skipped and *that* an icon was dropped, instead of only *which* id it was.

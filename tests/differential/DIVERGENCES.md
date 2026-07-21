@@ -1,7 +1,7 @@
 # Declared divergences
 
 Every way `groloo-core` deliberately answers differently from the artifact
-Stredio-Web ships today (`public/assets/heart/0.1.0-5ecaa78/`), with the fixture
+Groloo-Web ships today (`public/assets/heart/0.1.0-5ecaa78/`), with the fixture
 that pins it and the reason the new answer is the right one.
 
 This file is the prose half of `fixtures.mjs`. The machine half is the `expect`
@@ -20,7 +20,7 @@ matcher is widened, and no fixture was deleted to turn the gate green.
 
 ## What the gate runs against
 
-Both cores are vendored artifacts read out of `Stredio-Web/public/assets/`. The
+Both cores are vendored artifacts read out of `Groloo-Web/public/assets/`. The
 old one is the wasm serving the app right now. The new one is
 `public/assets/groloo-core/<build>/`, and three things must agree before the
 first fixture is evaluated:
@@ -29,7 +29,7 @@ first fixture is evaluated:
 |---|---|---|
 | every file hashes to what its `manifest.json` claims | truncated copy, half-finished vendor, hand-edited glue | throws |
 | `scripts/build-wasm.mjs --no-vendor` reproduces those exact bytes | fixing a rule, gating, then shipping an artifact built before the fix | throws |
-| `Stredio-Web/src/lib/heart.ts` pins that `CORE_BUILD` and that `CORE_WASM_SHA256` | the app fetches a folder the gate never looked at | reservation; `--strict` exits 1 |
+| `Groloo-Web/src/lib/heart.ts` pins that `CORE_BUILD` and that `CORE_WASM_SHA256` | the app fetches a folder the gate never looked at | reservation; `--strict` exits 1 |
 
 The harness used to build its own copy into `tests/.artifacts/new/`. Those bytes
 were never the bytes anybody deployed — 319,319 against 319,143 — because
@@ -40,7 +40,7 @@ exists to eliminate; reproducing it inside the gate was the worst place for it.
 The first two checks have no flag to skip them.
 
 The third is a reservation rather than a throw because `heart.ts` belongs to
-Stredio-Web: re-vendoring legitimately makes its pin stale for as long as it
+Groloo-Web: re-vendoring legitimately makes its pin stale for as long as it
 takes to paste the two lines the build script prints. The run still evaluates
 every fixture and still prints the numbers; it simply refuses to call itself
 green.

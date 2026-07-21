@@ -5,7 +5,7 @@
 //! `/api/library-state` document) so the same bytes flow from CDN → core → any
 //! shell with zero transformation.
 //!
-//! VENDORED from `Stredio-Heart@0.1.0 src/types.rs`. Everything Heart modelled is
+//! VENDORED from `Groloo-Heart@0.1.0 src/types.rs`. Everything Heart modelled is
 //! still here and still means the same thing; what changed are the five
 //! corrections the Phase 1 contract calls for, each of which exists because the
 //! *absence* of it is currently costing the shell something concrete:

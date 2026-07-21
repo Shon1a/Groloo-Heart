@@ -5,7 +5,7 @@
 //! add-on id, synced last-write-wins by timestamp. Keeping it here (not in the
 //! CDN data) is what lets one collection serve every account.
 //!
-//! VENDORED VERBATIM from `Stredio-Heart@0.1.0 src/state.rs`, tests included.
+//! VENDORED VERBATIM from `Groloo-Heart@0.1.0 src/state.rs`, tests included.
 //! Note that no GROLOO shell reaches this logic today: `/api/addon-state` exists
 //! server-side and has zero clients, and install state lives device-local in
 //! `groloo.homeconfig`. These three functions are the machinery a shared

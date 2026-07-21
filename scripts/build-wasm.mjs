@@ -1,6 +1,6 @@
 /*
  * Build the WebAssembly artifact, prove it, CONTENT-ADDRESS it, and vendor it
- * into Stredio-Web.
+ * into Groloo-Web.
  *
  *   node scripts/build-wasm.mjs                 # build + vendor + write manifest
  *   node scripts/build-wasm.mjs --prune         # …and delete superseded builds
@@ -64,6 +64,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+import { webRepo } from './sibling.mjs';
 const ROOT = resolve(HERE, '..');
 
 const CRATE = 'groloo-core-wasm';
@@ -79,7 +80,7 @@ const OUT_NAME = 'groloo_core';
 /* Default vendor target: the sibling checkout. Resolved, not configured, because a
  * two-repo layout that anybody has to describe in a README is a layout people get
  * wrong once and then work around forever. --out overrides it. */
-const DEFAULT_ASSETS = resolve(ROOT, '..', 'Stredio-Web', 'public', 'assets', 'groloo-core');
+const DEFAULT_ASSETS = resolve(webRepo(ROOT), 'public', 'assets', 'groloo-core');
 const STAGE_DIR = join(ROOT, 'tests', '.artifacts', 'build');
 
 const MANIFEST_SCHEMA = 1;

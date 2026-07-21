@@ -2,7 +2,7 @@
 //! URL normalisation, base-URL resolution, manifest validation, and capability
 //! checks. All string-in / string-out — no I/O, so identical on every device.
 //!
-//! VENDORED from `Stredio-Heart@0.1.0 src/addon.rs`, behaviour-frozen, tests
+//! VENDORED from `Groloo-Heart@0.1.0 src/addon.rs`, behaviour-frozen, tests
 //! included. The only edits are to the *shape* of the code: `&s[a..b]` became
 //! `s.get(a..b)` throughout, because a crate that denies `indexing_slicing`
 //! denies it in vendored code too or the rule means nothing. No branch changed.

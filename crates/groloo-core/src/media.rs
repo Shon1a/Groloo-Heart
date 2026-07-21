@@ -40,7 +40,7 @@
 //!
 //! ## `movie` | `series`, and why `tv` is the derived form
 //!
-//! Two vocabularies land in the same field today. `Stredio-server`'s `mapMovie`
+//! Two vocabularies land in the same field today. `Groloo-server`'s `mapMovie`
 //! emits `'movie' | 'tv'`; `addonClient.ts:134`'s `mapCatalogMeta` emits
 //! `'movie' | 'series'`; `lib/types.ts:12` types the field as the union of both,
 //! and five call sites patch over it with `=== 'tv' || === 'series'`.
@@ -85,7 +85,7 @@ pub const MEDIA_KEY_SEPARATOR: &str = ":";
 pub enum MediaSource {
     /// `tt0903747` — IMDb. What every add-on's `stream` resource expects.
     Imdb,
-    /// `12345` — TMDB. What `Stredio-server` returns and what `/api/meta` keys on.
+    /// `12345` — TMDB. What `Groloo-server` returns and what `/api/meta` keys on.
     Tmdb,
 }
 

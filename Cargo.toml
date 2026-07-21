@@ -39,7 +39,7 @@ lto = true
 codegen-units = 1
 strip = true
 
-# WHY "unwind" rather than Stredio-Heart's "abort" (problem 7).
+# WHY "unwind" rather than Groloo-Heart's "abort" (problem 7).
 #
 # `panic = "abort"` turns any bug in the core into process death on the shells
 # that matter: on Android a `cdylib` built with abort raises SIGABRT and takes

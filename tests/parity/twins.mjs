@@ -21,7 +21,7 @@
  *
  * ## How each twin is reached, and what that cost
  *
- * **`Stredio-Web/src/lib/addonClient.ts`** and **`src/stores/addons.ts`** are
+ * **`Groloo-Web/src/lib/addonClient.ts`** and **`src/stores/addons.ts`** are
  * imported directly. Node 23+ strips TypeScript types natively, so the bytes node
  * executes are the bytes in the repository. Two things had to be arranged:
  *
@@ -44,7 +44,7 @@
  * `addon_resource_path` gets compared to something real) and replays the fixture
  * body.
  *
- * **`Stredio-server/server/server.js`** cannot be imported: the module body calls
+ * **`Groloo-server/server/server.js`** cannot be imported: the module body calls
  * `app.listen`, opens a database and registers timers. Its two twins are not
  * exported either. So their SOURCE TEXT is lifted out of the file by brace-matching
  * from `function <name>(` and evaluated. That is materially different from copying
@@ -104,8 +104,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..', '..');
-export const WEB = resolve(REPO, '..', 'Stredio-Web');
-export const SERVER = resolve(REPO, '..', 'Stredio-server');
+import { webRepo, serverRepo } from '../../scripts/sibling.mjs';
+export const WEB = webRepo(REPO);
+export const SERVER = serverRepo(REPO);
 
 const ADDON_CLIENT_TS = join(WEB, 'src', 'lib', 'addonClient.ts');
 const ADDONS_STORE_TS = join(WEB, 'src', 'stores', 'addons.ts');
@@ -219,7 +220,7 @@ const IMPORTS_THE_SHELL = /from '\.{1,2}\/(lib\/)?heart'/;
  * does, so both directions are asserted.
  *
  * @param {string} text     the file's contents at `rev`
- * @param {string} relPath  its path within Stredio-Web, for the message
+ * @param {string} relPath  its path within Groloo-Web, for the message
  * @param {string} rev      what it was read from, for the message
  */
 export function assertNotACoreCallSite(text, relPath, rev) {
@@ -528,7 +529,7 @@ export async function loadTwins() {
     if (String(e && e.code) === 'ERR_MODULE_NOT_FOUND' && /zustand/.test(String(e.message))) {
       throw new Error(
         `the twins import zustand and ${join(WEB, 'node_modules')} does not provide it.\n` +
-        'Run `npm install` in Stredio-Web first. The corpus deliberately imports the REAL store rather ' +
+        'Run `npm install` in Groloo-Web first. The corpus deliberately imports the REAL store rather ' +
         'than stubbing it — `addonClient.ts` reads `useAddons.getState().installed`, and a stub there ' +
         'would mean the fixtures drove the harness\'s idea of an installed add-on instead of the app\'s.',
       );

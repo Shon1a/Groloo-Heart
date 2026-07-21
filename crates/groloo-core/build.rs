@@ -1,6 +1,6 @@
 //! Stamps the git revision of the source tree into the compiled crate.
 //!
-//! WHY this exists at all: Stredio-Web loads the core from a *pinned vendored
+//! WHY this exists at all: Groloo-Web loads the core from a *pinned vendored
 //! folder* (`public/assets/heart/<version>/`). Nothing today proves the bytes in
 //! that folder are the bytes that folder's name claims — a stale or mispointed
 //! copy is completely invisible, and it presents as "the app behaves like an old

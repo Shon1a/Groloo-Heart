@@ -1,4 +1,4 @@
-/* The gate. Run it before anything in Stredio-Web is repointed:
+/* The gate. Run it before anything in Groloo-Web is repointed:
  *
  *     node tests/differential/run.mjs            # summary
  *     node tests/differential/run.mjs --verbose  # every fixture, every note
@@ -62,7 +62,7 @@ const neu = { ...(await loadNew()), __unwrap: unwrap };
 
 const coreVersion = neu.core_version();
 
-/* Both sides are vendored artifacts read out of Stredio-Web/public/assets — the
+/* Both sides are vendored artifacts read out of Groloo-Web/public/assets — the
  * bytes that serve the app, not a tree that compiles to something similar. The
  * sha-256 is printed because it is the only line of this header that cannot be
  * true of the wrong file: `0.2.0+gunknown` is what every build of this repo
@@ -134,7 +134,7 @@ function evaluate(family, f, divs) {
   /* The other half of problem 7: 0.1.0 returned a success-shaped value on every
    * failure path, so "the core is broken" and "the core has nothing to say" were
    * the same observation — and the four `catch { return null }` call sites in
-   * Stredio-Web could not tell them apart either. Where a fixture says the new
+   * Groloo-Web could not tell them apart either. Where a fixture says the new
    * core must raise `ok:false` on input the old one swallowed, that is asserted.
    * The degraded VALUE is unchanged (which is why `expect` stays 'match'); the
    * silence is what went away. */
@@ -308,7 +308,7 @@ if (pinProblems.length) {
   log();
   log(`${C.d}  Everything above is a statement about ${SHIPPED.manifest.build}. The browser loads whatever${C.x}`);
   log(`${C.d}  src/lib/heart.ts names, so until the two agree this run gated an artifact the app${C.x}`);
-  log(`${C.d}  does not fetch. Two lines, in Stredio-Web/src/lib/heart.ts:${C.x}`);
+  log(`${C.d}  does not fetch. Two lines, in Groloo-Web/src/lib/heart.ts:${C.x}`);
   log();
   log(`    const CORE_BUILD = '${SHIPPED.manifest.build}';`);
   log(`    const CORE_WASM_SHA256 = '${shippedWasm.sha256}';`);
@@ -317,7 +317,7 @@ if (pinProblems.length) {
 
 if (failed) {
   log(`${C.r}${C.B}GATE CLOSED${C.x} — ${failed} fixture(s) did not behave as this phase says they should.`);
-  log(`${C.r}Do not repoint Stredio-Web at the new core.${C.x}`);
+  log(`${C.r}Do not repoint Groloo-Web at the new core.${C.x}`);
   log();
   process.exit(1);
 }

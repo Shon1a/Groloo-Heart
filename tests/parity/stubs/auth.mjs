@@ -1,4 +1,4 @@
-/* Substitute for `Stredio-Web/src/stores/auth.ts` — see `../hooks.mjs` for why.
+/* Substitute for `Groloo-Web/src/stores/auth.ts` — see `../hooks.mjs` for why.
  *
  * `stores/addons.ts` calls `useAuth.subscribe(...)` at module scope and reads
  * `useAuth.getState().user` from `email()` and `authed()`. The real store is a

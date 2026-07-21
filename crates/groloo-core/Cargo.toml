@@ -11,7 +11,7 @@ build = "build.rs"
 
 [lib]
 name = "groloo_core"
-# rlib ONLY. Stredio-Heart declared `["rlib", "cdylib"]` on the domain crate, which
+# rlib ONLY. Groloo-Heart declared `["rlib", "cdylib"]` on the domain crate, which
 # meant every shell target linked a dynamic library nobody could call — the
 # aarch64 cdylib exported no symbols at all. Binding surface belongs to the
 # binding crates (groloo-core-wasm today, groloo-core-ffi in Phase 5); this one

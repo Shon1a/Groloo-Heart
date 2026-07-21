@@ -1,4 +1,4 @@
-/* Substitute for `Stredio-Web/src/lib/api.ts` — see `../hooks.mjs` for why.
+/* Substitute for `Groloo-Web/src/lib/api.ts` — see `../hooks.mjs` for why.
  *
  * The real file computes `API_BASE` from `import.meta.env.VITE_API_BASE` while it is
  * being evaluated, which is a Vite construct: under node `import.meta.env` is
