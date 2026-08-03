@@ -172,11 +172,8 @@ pub use types::{
 /// It is a `const` built by `concat!` rather than a function that formats at call
 /// time so there is exactly one place a version can come from and no path that
 /// forgets to stamp it. Every envelope carries it by construction.
-pub const CORE_VERSION: &str = concat!(
-    env!("CARGO_PKG_VERSION"),
-    "+g",
-    env!("GROLOO_CORE_GIT_SHA")
-);
+pub const CORE_VERSION: &str =
+    concat!(env!("CARGO_PKG_VERSION"), "+g", env!("GROLOO_CORE_GIT_SHA"));
 
 /// The bootstrap probe — deliberately NOT enveloped.
 ///
