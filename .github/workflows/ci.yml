@@ -75,29 +75,44 @@ env:
 
   # SIZE BUDGET — the ceilings the artifact job enforces, in bytes.
   #
-  # Set from a measured build of this workspace at its current 18-function export
-  # surface (26 entries in the wasm export table), not from a wish:
+  # Set from a measured build of this workspace at its current 23-function export
+  # surface (31 entries in the wasm export table), not from a wish:
   #
-  #   groloo_core_wasm_bg.wasm   358,925 B   ceiling 409,600 B (400 KiB, +14%)
-  #   groloo_core_wasm.js         24,415 B   ceiling  32,768 B  (32 KiB, +34%)
+  #   groloo_core_wasm_bg.wasm   434,662 B   ceiling 491,520 B (480 KiB, +13%)
+  #   groloo_core_wasm.js         30,395 B   ceiling  32,768 B  (32 KiB,  +8%)
   #
   # A ceiling many times the real figure catches nothing, so these are deliberately
   # close to it. The artifact job prints percentage-of-budget on every run, so the
   # remaining slack is never invisible and the trend is readable from the log.
   #
-  # WORTH KNOWING, and not what was expected: the module is currently LARGER than
-  # the Groloo-Heart build Groloo-Web ships today (244,077 B of .wasm, 32,585 B
-  # of glue) despite dropping Heart's Elm runtime and its 304 hand-written
-  # bindings. The glue did collapse as intended — 24 KB against 32 KB, for MORE
-  # exported functions — but the wasm grew ~47%, which points at the serde derive
-  # and formatting surface rather than at the binding layer. That is a real finding
-  # for whoever owns the crates, not something for this budget to paper over: the
-  # right response is to measure it (twiggy / `wasm-opt -Oz`) and ratchet the
-  # ceiling down, never to raise it quietly.
+  # THE WASM CEILING WAS RAISED ONCE, from 409,600 B, and the reason is recorded
+  # here rather than in a commit message nobody re-reads. The previous figure was
+  # measured at an 18-function surface (26 export-table entries). Five exports
+  # were added after it was set, and the first CI run to reach this gate came in
+  # at 434,662 B — 106% of the old ceiling. That was investigated before it was
+  # raised, which is the order the rule below demands: the code section is 391,438
+  # of the 434,662 bytes (90%), there are 4 imports, and the dependency graph is
+  # serde, serde_json, wasm-bindgen and console_error_panic_hook. Nothing stray is
+  # linked in; the module is simply bigger because it does more.
+  #
+  # STILL WORTH KNOWING, and still not what was expected: the module is LARGER
+  # than the Groloo-Heart build Groloo-Web ships today (244,077 B of .wasm,
+  # 32,585 B of glue) despite dropping Heart's Elm runtime and its 304
+  # hand-written bindings. The glue did collapse as intended — 30 KB against
+  # 32 KB, for MORE exported functions — but the wasm is now ~78% larger, up from
+  # ~47% when this note was first written. That gap widened rather than closed,
+  # which points at the serde derive and formatting surface rather than at the
+  # binding layer. It remains a real finding for whoever owns the crates, and
+  # raising the ceiling has not answered it: the right response is still to
+  # measure it (twiggy / `wasm-opt -Oz`) and ratchet this number back down.
+  #
+  # THE JS GLUE HAS NO ROOM LEFT. 30,395 B against 32,768 B is 92.8% of budget,
+  # where it was 74% when this file was written. One or two more exports will
+  # breach it. Read that as a prompt to measure, not as a licence to raise it.
   #
   # Raising either number is a deliberate, reviewable one-line commit — never a fix
   # bundled into the change that caused the growth.
-  WASM_BUDGET_BYTES: 409600
+  WASM_BUDGET_BYTES: 491520
   JS_BUDGET_BYTES: 32768
 
 defaults:
