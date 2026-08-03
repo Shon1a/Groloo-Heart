@@ -339,13 +339,21 @@ pub fn reconcile_install_state(request_json: &str) -> String {
         }
     };
 
+    // U1 — an EMPTY remote map reads as "there is no remote yet", NOT as "the
+    // remote says you have nothing installed". 0.1.0 decided presence on
+    // `!map.is_empty()` (runtime.rs:182) and this core briefly decided it on
+    // `remote != null`, which adopts the empty map and moves `at` to the remote
+    // clock — i.e. it CLEARS the device's install state where 0.1.0 uploaded it.
+    //
+    // Settled in favour of 0.1.0, deliberately. An account that reads back empty
+    // for any reason — a first sync, a server that has not written the row yet, a
+    // failed migration — must not be able to erase what is on the device. Losing
+    // the device's state is unrecoverable for the user; re-uploading a state the
+    // server already had is free. See U1 in tests/differential/DIVERGENCES.md.
+    let remote_present = req.remote.as_ref().is_some_and(|r| !r.map.is_empty());
     let remote_at = req.remote.as_ref().map(|r| r.at).unwrap_or(0);
-    let decision = crate::state::reconcile(
-        req.local.at,
-        req.remote.is_some(),
-        remote_at,
-        req.owner_changed,
-    );
+    let decision =
+        crate::state::reconcile(req.local.at, remote_present, remote_at, req.owner_changed);
 
     let (winning_map, at) = match decision {
         SyncDecision::AdoptRemote => match &req.remote {
@@ -1498,6 +1506,28 @@ mod tests {
     fn reconcile_uploads_when_there_is_no_remote() {
         let s = reconcile_install_state(&reconcile_req(0, None, false));
         assert_eq!(ok_data(&s)["decision"], Value::from("uploadLocal"));
+    }
+
+    /// U1, and the reason it is a test rather than a note: an empty remote map
+    /// is "no remote yet", so the device's state is UPLOADED and never wiped —
+    /// even though the remote clock here (20) is newer than the local one (10),
+    /// which is the case that would otherwise adopt.
+    #[test]
+    fn reconcile_uploads_when_the_remote_map_is_empty() {
+        let s = reconcile_install_state(&reconcile_req(10, Some(("{}", 20)), false));
+        let data = ok_data(&s);
+        assert_eq!(data["decision"], Value::from("uploadLocal"));
+        assert_eq!(data["at"], Value::from(10));
+        assert_eq!(data["map"]["a"], Value::Bool(true));
+    }
+
+    /// The same empty map with a changed owner still may not adopt: there is
+    /// nothing to adopt. It noops rather than uploading one account's state into
+    /// another's, which is the whole point of `ownerChanged`.
+    #[test]
+    fn reconcile_noops_for_a_new_owner_with_an_empty_remote_map() {
+        let s = reconcile_install_state(&reconcile_req(10, Some(("{}", 20)), true));
+        assert_eq!(ok_data(&s)["decision"], Value::from("noop"));
     }
 
     /// A locked id is never toggled by a map and never appears in the map that is

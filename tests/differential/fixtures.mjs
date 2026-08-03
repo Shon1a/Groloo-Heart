@@ -258,11 +258,10 @@ const reconcileInstallState = {
     { id: 'locked-addon-is-never-toggled-or-mapped', expect: 'match', addons: ADDONS_3, toggle: { id: 'providers', at: 10 }, remote: { map: { cinemeta: false, catalog: false }, at: 20 } },
     { id: 'remote-map-with-unknown-ids', expect: 'match', addons: ADDONS_3, toggle: { id: 'providers', at: 10 }, remote: { map: { ghost: true, phantom: false, catalog: false }, at: 20 } },
     { id: 'remote-adopts-every-id-at-once', expect: 'match', addons: ADDONS_3, toggle: { id: 'providers', at: 5 }, remote: { map: { catalog: false, providers: false, studios: false }, at: 900 } },
-    {
-      id: 'newer-remote-carrying-an-EMPTY-map',
-      expect: { d: 'U1', why: 'UNPLANNED. 0.1.0 decided remote-present as `!map.is_empty()` (runtime.rs:182), so an empty remote map read as "there is no remote" and it uploaded. The new core decides on `remote != null` (api.rs:297-303) and therefore ADOPTS, moving `at` to the remote clock. See the run report.' },
-      addons: ADDONS_3, toggle: { id: 'providers', at: 10 }, remote: { map: {}, at: 20 },
-    },
+    // Was U1, the one unplanned divergence in this corpus. Settled in favour of
+    // 0.1.0 and the core changed to match, so it is a `match` like the rest — not
+    // a declaration, and not a widened comparison. See U1 in DIVERGENCES.md.
+    { id: 'newer-remote-carrying-an-EMPTY-map', expect: 'match', addons: ADDONS_3, toggle: { id: 'providers', at: 10 }, remote: { map: {}, at: 20 } },
   ],
   run(old, neu, f) {
     const rt = new old.AddonRuntime(S(f.addons));

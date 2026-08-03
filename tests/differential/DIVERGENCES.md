@@ -362,19 +362,41 @@ silence is what went away.
 
 ## Not declared — still open
 
-### U1 — `reconcile_install_state` and an empty remote map
+None. `U1` was the only entry here; it is settled below.
 
-*Fixture:* `reconcile_install_state/newer-remote-carrying-an-EMPTY-map`
+---
+
+## Settled — U1, `reconcile_install_state` and an empty remote map
+
+*Fixture:* `reconcile_install_state/newer-remote-carrying-an-EMPTY-map` — now
+declared `match`, because **the core was changed to agree with 0.1.0**.
 
 0.1.0 decided remote-present as `!map.is_empty()` (`runtime.rs:182`), so an empty
-remote map read as "there is no remote" and it uploaded. The new core decides on
-`remote != null` (`api.rs:297-303`) and therefore **adopts**, moving `at` to the
-remote clock.
+remote map read as "there is no remote" and it uploaded. The new core decided on
+`remote != null` and therefore **adopted**, moving `at` to the remote clock — so
+where 0.1.0 preserved the device's install state, the new core cleared it.
 
-A `U`-prefixed id is a difference this phase did not plan for. It is declared so
-the run can be read at a glance, **not** so it can be forgotten: it gets its own
-red section above the deliberate ones, its own line in the summary, and it makes
-`--strict` exit non-zero. A divergence nobody chose is a behaviour change nobody
-reviewed, and burying it among the intended ones is exactly how it would ship.
+**Decision: 0.1.0 wins. An empty remote map means "there is no remote yet".**
 
-**This one still needs a decision from a person.** It is not mine to make.
+The asymmetry is what settles it. A remote can read back empty for reasons that
+have nothing to do with the user's intent — a first sync, a server that has not
+written the row yet, a failed migration, an account restored from a blank slate.
+If empty means "adopt", any of those silently erases what is on the device, and
+the user has no way to get it back. If empty means "no remote", the cost of being
+wrong is re-uploading a state the server already had, which costs nothing and is
+undone by the next pull. One direction loses data and the other wastes a request.
+
+Implemented at `api.rs` in `reconcile_install_state`, which now passes
+`req.remote.as_ref().is_some_and(|r| !r.map.is_empty())` as `remote_present`
+rather than `req.remote.is_some()`. `state::reconcile` is untouched — the rule
+about what "present" *means* belongs at the boundary where the request is read,
+not inside the decision table.
+
+Two unit tests pin it directly, in addition to the fixture: an empty map with a
+*newer* remote clock still uploads, and an empty map with `ownerChanged` still
+noops rather than adopting nothing.
+
+Recorded here rather than deleted, per the note at the top of this file: a
+divergence that quietly stops happening is exactly what this document exists to
+make impossible to do silently. It stopped happening because the code changed,
+which is the only sanctioned reason.
