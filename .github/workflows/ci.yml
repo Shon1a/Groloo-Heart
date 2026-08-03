@@ -1,7 +1,7 @@
 # CI for groloo-core.
 #
 # Four jobs, each guarding a distinct class of failure. The third is the reason
-# this file was rewritten rather than copied from Stredio-Heart; the fourth is the
+# this file was rewritten rather than copied from Groloo-Heart; the fourth is the
 # reason it was rewritten a second time.
 #
 #   check     Correctness and style of the Rust that a human reads.
@@ -39,7 +39,7 @@
 #             `cargo test` asserts the core against its own expectations; these
 #             two runs assert it against the implementations it is replacing —
 #             the vendored 0.1.0-5ecaa78 wasm serving the app today, and the
-#             TypeScript in Stredio-Web / the JavaScript in Stredio-server.
+#             TypeScript in Groloo-Web / the JavaScript in Groloo-server.
 #
 #             Neither was wired in here before, which is how a regression stayed
 #             invisible until someone thought to run it by hand: the U-slash
@@ -86,7 +86,7 @@ env:
   # remaining slack is never invisible and the trend is readable from the log.
   #
   # WORTH KNOWING, and not what was expected: the module is currently LARGER than
-  # the Stredio-Heart build Stredio-Web ships today (244,077 B of .wasm, 32,585 B
+  # the Groloo-Heart build Groloo-Web ships today (244,077 B of .wasm, 32,585 B
   # of glue) despite dropping Heart's Elm runtime and its 304 hand-written
   # bindings. The glue did collapse as intended — 24 KB against 32 KB, for MORE
   # exported functions — but the wasm grew ~47%, which points at the serde derive
@@ -247,7 +247,7 @@ jobs:
           if [ ! -f pkg/groloo_core_wasm_bg.wasm ]; then
             echo "::error::pkg/groloo_core_wasm_bg.wasm is not committed."
             echo "The wasm-bindgen output is a versioned deliverable here, not a build"
-            echo "by-product: Stredio-Web loads exactly these bytes from a pinned folder."
+            echo "by-product: Groloo-Web loads exactly these bytes from a pinned folder."
             echo "Produce it with 'bash .github/scripts/build-wasm.sh pkg' and commit it."
             exit 1
           fi
@@ -303,19 +303,19 @@ jobs:
   #
   # THIS JOB NEEDS ALL THREE REPOSITORIES, and that is not an inconvenience to be
   # engineered around — it is the entire point. tests/parity compares the core
-  # against the TypeScript that ships (Stredio-Web/src/lib/addonClient.ts,
-  # src/stores/addons.ts) and the JavaScript that ships (Stredio-server/server/
+  # against the TypeScript that ships (Groloo-Web/src/lib/addonClient.ts,
+  # src/stores/addons.ts) and the JavaScript that ships (Groloo-server/server/
   # server.js), IMPORTED AND RUN, never transcribed. tests/differential compares
-  # it against the vendored 0.1.0-5ecaa78 wasm, which also lives in Stredio-Web.
+  # it against the vendored 0.1.0-5ecaa78 wasm, which also lives in Groloo-Web.
   # A version of this job that stubbed any of that would be testing the stub.
   #
   # The three checkouts are laid out as siblings because that is the layout both
-  # harnesses resolve (`resolve(REPO, '..', 'Stredio-Web')`):
+  # harnesses resolve (`resolve(REPO, '..', 'Groloo-Web')`):
   #
   #     $GITHUB_WORKSPACE/
   #       groloo-core/     <- this repository
-  #       Stredio-Web/
-  #       Stredio-server/
+  #       Groloo-Web/
+  #       Groloo-server/
   #
   # WHY THIS JOB FAILS RATHER THAN SKIPS when the sibling checkouts are not
   # available. A skipped gate reports the same green tick as a passed one, and
@@ -342,19 +342,19 @@ jobs:
         run: |
           if [ -z "$SIBLING_REPOS_TOKEN" ]; then
             echo "::error::SIBLING_REPOS_TOKEN is not configured, so the two behavioural gates cannot run."
-            echo "tests/parity imports the REAL Stredio-Web TypeScript and lifts the REAL"
-            echo "Stredio-server JavaScript; tests/differential reads the vendored wasm out of"
-            echo "Stredio-Web/public/assets. None of that can be stubbed without testing the stub."
-            echo "Add a repo secret SIBLING_REPOS_TOKEN with contents:read on Shon1a/Stredio-Web"
-            echo "and Shon1a/Stredio-server. This job fails rather than skipping on purpose: a"
+            echo "tests/parity imports the REAL Groloo-Web TypeScript and lifts the REAL"
+            echo "Groloo-server JavaScript; tests/differential reads the vendored wasm out of"
+            echo "Groloo-Web/public/assets. None of that can be stubbed without testing the stub."
+            echo "Add a repo secret SIBLING_REPOS_TOKEN with contents:read on Shon1a/Groloo-Web"
+            echo "and Shon1a/Groloo-server. This job fails rather than skipping on purpose: a"
             echo "skipped gate and a passed gate print the same green tick."
             exit 1
           fi
 
       - uses: actions/checkout@v4
         with:
-          repository: Shon1a/Stredio-Web
-          path: Stredio-Web
+          repository: Shon1a/Groloo-Web
+          path: Groloo-Web
           token: ${{ secrets.SIBLING_REPOS_TOKEN }}
           # Full history. tests/parity quotes the pre-port twins with `git show
           # <PRE_PORT_REV>:`, and a depth-1 checkout has no revision to quote.
@@ -362,8 +362,8 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: Shon1a/Stredio-server
-          path: Stredio-server
+          repository: Shon1a/Groloo-server
+          path: Groloo-server
           token: ${{ secrets.SIBLING_REPOS_TOKEN }}
 
       # >= 23.6, because tests/parity imports the twins as .ts and executes the
@@ -373,7 +373,7 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: Stredio-Web/package-lock.json
+          cache-dependency-path: Groloo-Web/package-lock.json
 
       - name: Install the pinned toolchain
         working-directory: groloo-core
@@ -423,16 +423,16 @@ jobs:
       # The corpus imports the REAL zustand store rather than stubbing it —
       # addonClient.ts reads `useAddons.getState().installed`, and a stub there
       # would mean the fixtures drove the harness's idea of an installed add-on
-      # instead of the app's. So Stredio-Web's dependencies are a hard requirement.
-      - name: Install Stredio-Web dependencies
-        working-directory: Stredio-Web
+      # instead of the app's. So Groloo-Web's dependencies are a hard requirement.
+      - name: Install Groloo-Web dependencies
+        working-directory: Groloo-Web
         run: npm ci
 
       # PRE_PORT_REV IS THE ONE THING THIS JOB CANNOT CHECK FOR YOU, and it is
       # worth knowing about before you read a red run below.
       #
       # tests/parity compares the core against TypeScript that has already been
-      # DELETED from Stredio-Web's working tree, so it quotes those twins out of
+      # DELETED from Groloo-Web's working tree, so it quotes those twins out of
       # git at `PRE_PORT_REV` (tests/parity/twins.mjs). That constant is `'HEAD'`,
       # which is correct for exactly as long as the deletions stay UNCOMMITTED —
       # HEAD is then, by construction, the last all-TypeScript revision.
@@ -479,7 +479,7 @@ jobs:
       #       what makes that decision unavoidable instead of perennially deferred.
       #
       #   the vendored artifact is stale — the parity fixes landed in the crates
-      #       and Stredio-Web/public/assets/groloo-core/ was not re-vendored, so
+      #       and Groloo-Web/public/assets/groloo-core/ was not re-vendored, so
       #       BOTH gates throw before evaluating a fixture ("THE VENDORED ARTIFACT
       #       IS NOT WHAT THIS TREE BUILDS"). Fix with `node scripts/build-wasm.mjs
       #       --prune` and the two lines it prints for src/lib/heart.ts.
