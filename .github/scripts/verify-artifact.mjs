@@ -36,9 +36,32 @@
  *     that is not a #[wasm_bindgen] doc comment, a test). Correct: such a change
  *     does not make the artifact stale.
  *   - A change whose entire binary effect is swapping `/` for `\` inside a string
- *     literal in the data section. That single byte class is normalised away so
- *     that a Windows-built artifact and a Linux rebuild can be compared at all.
+ *     literal in the data section. That single byte class is normalised away.
  *     Nothing else is normalised.
+ *
+ * THE ARTIFACT MUST BE BUILT ON LINUX, and this note replaces an earlier claim
+ * here that the separator normalisation was enough to let "a Windows-built
+ * artifact and a Linux rebuild be compared at all". It is not, and the first CI
+ * run to reach this gate proved it. A Windows host and the ubuntu-latest runner,
+ * both on the pinned 1.96.1 and both through build-wasm.sh, produce:
+ *
+ *     data 40,675 == 40,675      the remapping works; paths are fully handled
+ *     code 391,438 vs 391,666    228 bytes apart
+ *     func 1,054   vs 1,053
+ *     total 434,662 vs 434,901
+ *
+ * Identical exports, identical imports, identical data — so this is host codegen
+ * drift in rustc/LLVM, not a path leak and not something normalisation can reach.
+ * Cross-host reproducibility is not a property rustc offers, and gate [3] is
+ * doing exactly its job when it refuses the pair.
+ *
+ * So: pkg/ is produced on Linux. Do not commit a module built on Windows — it
+ * will fail [3] against every rebuild forever, for a reason that looks like a
+ * source defect and is not. The `check`/`wasm` jobs and the whole test suite run
+ * fine on Windows; it is only these bytes that are host-bound. The practical
+ * route needs no local Linux: push, let the artifact job go red, and take the
+ * `pkg-rebuilt-<sha>` upload it produces on failure for precisely this purpose —
+ * that is what the "Upload the rebuilt artifact / if: always()" step is for.
  *   - Anything at all if the artifact was NOT built by build-wasm.sh. Without its
  *     --remap-path-prefix flags the two modules differ in data-section LENGTH,
  *     every downstream offset shifts, and gate [3] fails loudly. It fails
