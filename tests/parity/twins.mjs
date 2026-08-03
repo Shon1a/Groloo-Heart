@@ -53,8 +53,8 @@
  * fallback, because a transcribed copy tests the transcription.
  *
  * **`DetailModal.tsx`** holds two expressions that are not functions and not
- * exported — the stream sort at `:271`/`:282` and the media-key builders at
- * `:188`/`:243`/`:168`. They are inside a React component in a `.tsx` file that
+ * exported — the stream sort at `:361`/`:362` and the media-key builders at
+ * `:213`/`:193`/`:261`. They are inside a React component in a `.tsx` file that
  * imports React, and there is no honest way to reach them from node. They are
  * transcribed into `fixtures.mjs`, and [`assertSourceLine`] below re-reads the real
  * file and fails the run if the line it was transcribed from has changed. A
@@ -179,21 +179,30 @@ function installFetch() {
 
 /** The revision the pre-port twins are quoted from.
  *
- * HEAD, not a fixed sha: the deletions this run gates are UNCOMMITTED, so HEAD is by
- * construction the last revision in which the twin was still TypeScript. It is
- * resolved to a sha at load time and printed, so a run's verdict names the bytes it
- * compared against rather than a moving label.
+ * A FIXED SHA, and it has to be. This was `'HEAD'` while the port was uncommitted,
+ * on the reasoning that HEAD was then by construction the last all-TypeScript
+ * revision. **That expiry date has passed.** Groloo-Web commit `3167326`
+ * ("rename Stredio -> Groloo, and land the uncommitted Phase 0 store-blocker
+ * work") is the commit that made `src/lib/addonClient.ts` import `./heart`, so
+ * from that commit onward `git show HEAD:` returns the CALL SITE and the
+ * "TypeScript twin" this corpus quotes would be the core itself.
  *
- * **THIS DEFAULT HAS AN EXPIRY DATE, and it is the moment the deletions are
- * committed.** From that commit onward `git show HEAD:src/lib/addonClient.ts` returns
- * the CALL SITE, and the "TypeScript twin" this corpus quotes is the core. That is the
- * exact defect the harness was rebuilt to remove, so it is not left to a reader to
- * notice: [`assertNotACoreCallSite`] tests every quoted file and refuses to run, with
- * the remedy spelled out. `--prove` fires that guard on purpose, both ways round, so
- * it is a guard somebody has checked rather than one nobody has. See also the
- * `gates` job in `.github/workflows/ci.yml`, which says the same thing to whoever is
- * looking at a red pipeline instead of at this file. */
-const PRE_PORT_REV = 'HEAD';
+ * [`assertNotACoreCallSite`] caught exactly that and refused to run — a guard
+ * doing precisely its job rather than a bug. The value below is `3167326^`,
+ * resolved and written out in full: the last revision in which the twin was
+ * still TypeScript (a 164-line file importing only `../stores/addons` and
+ * `./types`).
+ *
+ * Written as a sha and not `3167326^`, `HEAD~n`, a tag or a branch, because every
+ * one of those can resolve to different bytes later and the whole point of this
+ * constant is that it cannot. It is resolved and printed at load time, so a run's
+ * verdict names the bytes it compared against rather than a moving label.
+ *
+ * If the twins are ever re-ported, move this pin in the SAME commit that does it,
+ * for the reason the `gates` job in `.github/workflows/ci.yml` gives at length:
+ * between the port and the pin, this job is red for a reason that looks like a
+ * bug in the Rust and is not. */
+const PRE_PORT_REV = '0dd5447c9ba2';
 
 /** The import that turns a "TypeScript twin" into the core's own call site.
  *

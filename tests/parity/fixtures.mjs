@@ -35,8 +35,8 @@
  *   addon_catalogs                 addonClient.ts:147-156
  *   order_langs                    addonClient.ts:32-38
  *   validate_manifest        × 2   server.js:1947 AND stores/addons.ts:233
- *   rank_streams                   DetailModal.tsx:281-282
- *   media key round trip           DetailModal.tsx:188 / :243 / :168 / :268
+ *   rank_streams                   DetailModal.tsx:361-362
+ *   media key round trip           DetailModal.tsx:213 / :193 / :261 / :323
  *
  * The private functions (`mapAddonStream`, `detectQuality`, `extractSize`,
  * `parseStreamLangs`, `mapCatalogMeta`) are not exported and are therefore reached
@@ -822,7 +822,7 @@ const validateVsClient = {
  * 12. rank_streams
  * ------------------------------------------------------------------------ */
 
-/* `DetailModal.tsx:281-282` is an expression inside a React component, not a
+/* `DetailModal.tsx:361-362` is an expression inside a React component, not a
  * function and not exported. It is transcribed below and PINNED to its source line
  * by `assertSourceLine`, which re-reads the real file on every run: if that line
  * changes, this family fails rather than silently comparing against a fossil.
@@ -846,8 +846,8 @@ const WHY_RANK_SIZE = 'The twin sorts on ONE key — the five-value `qualityRank
 const WHY_RANK_FILTER = 'STRUCTURAL, and deliberate. The twin FILTERS — a stream whose `langs` do not include the wanted one is removed from the array and the UI never sees it. The core never drops anything: every input stream comes back, with `blocked`/`blockedBy` set, and `preferLangs` is an ORDERING key rather than a filter, because a source in the wrong language is still a source and the alternative is an empty list with nothing to explain it. This is the same rule that makes `VideoPlayer.tsx:190`\'s "Source unavailable" wrong on a 4K HEVC stream a TV panel decodes fine: the shell must be able to tell "this device can play none of these" from "the add-ons returned nothing", and only a response that carries the refused streams can do that. The consumer changes shape here — `rank_streams` returns indices and verdicts, not a filtered array — so this is the one twin whose deletion is a call-site rewrite rather than a substitution.';
 
 const rankStreams = {
-  name: 'rank_streams  (vs DetailModal.tsx:281-282)',
-  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:40-41 qualityRank + DetailModal.tsx:271 and :282', verdict: 'rewrite', obligation: 'rank_streams answers {ranked, summary} with indices and blocked reasons, not a filtered array — the two call sites are a UI change, not a substitution' },
+  name: 'rank_streams  (vs DetailModal.tsx:361-362)',
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:40-41 qualityRank + DetailModal.tsx:361 and :362', verdict: 'rewrite', obligation: 'rank_streams answers {ranked, summary} with indices and blocked reasons, not a filtered array — the two call sites are a UI change, not a substitution' },
   ts: 'list.filter(langs).sort(qualityRank desc)   [transcribed from JSX, pinned to its source line]',
   rust: 'rank_streams(streamsJson, "{}") -> envelope{ data: { ranked, summary } }, projected back to streams',
   fixtures: [
@@ -885,9 +885,18 @@ const rankStreams = {
     },
   ],
   run(t, core, f) {
-    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 282, SHELL_SORT_SOURCE,
+    /* :361-362, moved from :281-282 when DetailModal grew a `playEpisode` path.
+     *
+     * READ THIS BEFORE RE-PINNING FROM THE ERROR MESSAGE. assertSourceLine's hint
+     * names the FIRST line containing the needle, and for the sort that is now
+     * :351 — a DIFFERENT expression inside `playEpisode`, which filters on `want`
+     * rather than `lang`. The pair this corpus transcribes is `shownStreams`, and
+     * `shellShown` below filters on `lang`, so :361-362 is the one that matches.
+     * Pinning :351 would silently move the corpus onto another expression. Pin the
+     * sort and the filter as a PAIR and check they are adjacent. */
+    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 362, SHELL_SORT_SOURCE,
       'the parity corpus transcribes this sort because it is an expression inside JSX and cannot be imported.');
-    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 281, SHELL_FILTER_SOURCE,
+    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 361, SHELL_FILTER_SOURCE,
       'the parity corpus transcribes this filter because it is an expression inside JSX and cannot be imported.');
     const tsOut = shellShown(t.client.qualityRank, f.list.slice(), f.lang);
     const env = unwrap(core.rank_streams(S(f.list), '{}'), 'rank_streams');
@@ -916,8 +925,8 @@ const shellMediaKey = (id, ep) => (ep ? `${id}:S${ep.season}E${ep.ep}` : String(
 const shellVideoId = (imdb, ep) => (ep ? `${imdb}:${ep.season}:${ep.ep}` : String(imdb));
 
 const mediaKey = {
-  name: 'media key round trip  (vs DetailModal.tsx:188 / :243 / :268)',
-  twin: { at: 'Groloo-Web/src/components/DetailModal/DetailModal.tsx:188, :243, :168, :268', verdict: 'unreachable', obligation: 'MediaRef is not exported at the boundary, so there is nothing for these expressions to be replaced BY. The round trip is proven; the deletion is not available.' },
+  name: 'media key round trip  (vs DetailModal.tsx:213 / :193 / :261)',
+  twin: { at: 'Groloo-Web/src/components/DetailModal/DetailModal.tsx:213, :193, :261, :323', verdict: 'unreachable', obligation: 'MediaRef is not exported at the boundary, so there is nothing for these expressions to be replaced BY. The round trip is proven; the deletion is not available.' },
   ts: '`${id}:S${season}E${ep}` and `${imdb}:${season}:${ep}`   [transcribed from JSX, pinned]',
   rust: 'continue_watching().key + resume_position(key) + addon_resource_path(videoId)',
   fixtures: [
@@ -928,7 +937,8 @@ const mediaKey = {
     { id: 'a-double-digit-episode', expect: 'match', mediaId: 'tt0903747', ep: { season: 10, ep: 22 }, type: 'series' },
   ],
   run(t, core, f) {
-    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 188, SHELL_KEY_SOURCE,
+    /* :213, moved from :188. Unique in the file, unlike the sort above. */
+    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 213, SHELL_KEY_SOURCE,
       'the parity corpus transcribes the media-key builder because it is an expression inside JSX.');
     const key = shellMediaKey(f.mediaId, f.ep);
     const videoId = shellVideoId(f.mediaId, f.ep);
@@ -1049,7 +1059,7 @@ const CANARY = {
       family: {
         name: 'pin',
         run() {
-          assertSourceLine('src/components/DetailModal/DetailModal.tsx', 282,
+          assertSourceLine('src/components/DetailModal/DetailModal.tsx', 362,
             '.sort((a, b) => somethingElse(a, b))',
             'this canary asserts that the transcription pin fails loudly when the source moves.');
           return { tsOut: null, coreOut: null, notes: [] };
