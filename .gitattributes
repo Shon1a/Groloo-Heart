@@ -1,0 +1,18 @@
+# pkg/ is a versioned deliverable, not a text directory.
+#
+# The artifact gate compares the committed bytes against a rebuild, byte for
+# byte (verify-artifact.mjs gates [2] and [3]). This repository is authored from
+# Windows with core.autocrlf=true, so without this rule git rewrites the
+# wasm-bindgen JS/TS glue to CRLF on checkout while `build-wasm.sh` emits LF —
+# and a clean Windows clone fails the freshness gate for a reason that has
+# nothing to do with the source. `-text` disables eol translation entirely, so
+# what is checked out is what was committed, on every platform.
+#
+# The .wasm is spared today only by git's NUL-byte heuristic. A deliverable that
+# CI hashes should not depend on a heuristic, so it is marked explicitly.
+pkg/** -text
+pkg/*.wasm binary
+
+# Run by `bash` in CI and by hand on Windows. A CRLF checkout makes bash fail on
+# the shebang line with a message that names neither the file nor the cause.
+*.sh text eol=lf

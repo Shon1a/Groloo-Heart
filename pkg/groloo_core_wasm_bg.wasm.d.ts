@@ -1,0 +1,31 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const addon_base_url: (a: number, b: number, c: number) => void;
+export const addon_catalogs: (a: number, b: number, c: number) => void;
+export const addon_resource_path: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+export const catalog_metas: (a: number, b: number, c: number) => void;
+export const continue_watching: (a: number, b: number, c: number, d: number, e: number) => void;
+export const core_constants: (a: number) => void;
+export const core_version: (a: number) => void;
+export const library_record_watch: (a: number, b: number, c: number, d: number, e: number) => void;
+export const library_remove: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const manifest_has_resource: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+export const merge_library: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const merge_official: (a: number, b: number, c: number, d: number, e: number) => void;
+export const mylist_toggle: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+export const normalize_manifest_url: (a: number, b: number, c: number) => void;
+export const official_payload_file: (a: number, b: number, c: number) => void;
+export const order_langs: (a: number, b: number, c: number) => void;
+export const rank_streams: (a: number, b: number, c: number, d: number, e: number) => void;
+export const reconcile_install_state: (a: number, b: number, c: number) => void;
+export const resume_position: (a: number, b: number, c: number, d: number, e: number) => void;
+export const start: () => void;
+export const stream_parse: (a: number, b: number, c: number, d: number, e: number) => void;
+export const validate_manifest: (a: number, b: number, c: number) => void;
+export const visible_rows: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+export const __wbindgen_export: (a: number, b: number, c: number) => void;
+export const __wbindgen_export2: (a: number, b: number) => number;
+export const __wbindgen_export3: (a: number, b: number, c: number, d: number) => number;
+export const __wbindgen_add_to_stack_pointer: (a: number) => number;
+export const __wbindgen_start: () => void;
