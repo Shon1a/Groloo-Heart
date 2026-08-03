@@ -106,6 +106,15 @@ env:
   # raising the ceiling has not answered it: the right response is still to
   # measure it (twiggy / `wasm-opt -Oz`) and ratchet this number back down.
   #
+  # THAT MEASUREMENT NOW EXISTS — see SIZE.md, which is where this note stops
+  # guessing. serde is 28% of the module (121,149 B) and our own logic is 16%,
+  # so the hypothesis above was right. A further ~62 KB is duplicate copies of
+  # generic functions, 13,000 B of it in our own `Envelope<T>::into_json`.
+  # Nothing has been changed to act on it yet, deliberately: the behavioural
+  # gates below cannot run without SIBLING_REPOS_TOKEN, and refactoring the
+  # serialisation path with those switched off is the exact failure this file
+  # was rewritten to prevent. SIZE.md carries the order of work.
+  #
   # THE JS GLUE HAS NO ROOM LEFT. 30,395 B against 32,768 B is 92.8% of budget,
   # where it was 74% when this file was written. One or two more exports will
   # breach it. Read that as a prompt to measure, not as a licence to raise it.
