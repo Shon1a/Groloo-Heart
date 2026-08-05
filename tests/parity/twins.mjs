@@ -53,8 +53,8 @@
  * fallback, because a transcribed copy tests the transcription.
  *
  * **`DetailModal.tsx`** holds two expressions that are not functions and not
- * exported — the stream sort at `:361`/`:362` and the media-key builders at
- * `:213`/`:193`/`:261`. They are inside a React component in a `.tsx` file that
+ * exported — the stream sort at `:476`/`:477` and the media-key builders at
+ * `:319`/`:299`/`:433`. They are inside a React component in a `.tsx` file that
  * imports React, and there is no honest way to reach them from node. They are
  * transcribed into `fixtures.mjs`, and [`assertSourceLine`] below re-reads the real
  * file and fails the run if the line it was transcribed from has changed. A
