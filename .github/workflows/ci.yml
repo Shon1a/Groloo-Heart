@@ -53,6 +53,21 @@
 # Naming a toolchain in this file would let CI and a developer's machine disagree
 # about which compiler produced the artifact, which is exactly the ambiguity the
 # freshness gate exists to remove.
+#
+# THE ACTIONS ARE PINNED TO THEIR CURRENT MAJORS, and were moved off v4 together
+# because v4 targets Node 20: the runner was already force-running them on Node 24
+# and annotating every job to say so. Being carried by a compatibility shim is not
+# a place to sit, so they are on the majors that ask for Node 24 outright —
+# checkout v7, cache v6, setup-node v7, upload-artifact v7. All four require runner
+# >= 2.327.1, which every GitHub-hosted `ubuntu-latest` satisfies; that floor is the
+# thing to check first if this file is ever pointed at a self-hosted runner.
+#
+# Two behavioural changes in that range were read before taking them, and neither
+# reaches this workflow. setup-node v5 began caching automatically when package.json
+# declares `packageManager` (v6 narrowed it to npm) — no package.json here declares
+# one, and the gates job names `cache: npm` and its lockfile path explicitly, which
+# takes precedence regardless. checkout v7 refuses to check out a fork PR under
+# `pull_request_target` and `workflow_run`; this file triggers on neither.
 
 name: ci
 
@@ -135,7 +150,7 @@ jobs:
     name: fmt / clippy / test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # `cargo --version` is a rustup PROXY call, and it is the proxies — not
       # `rustup show`, which stopped auto-installing in rustup 1.28 — that
@@ -151,7 +166,7 @@ jobs:
           cargo fmt --version
           cargo clippy --version
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry/index
@@ -176,7 +191,7 @@ jobs:
     name: wasm32 clippy / build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # See the note in the `check` job: the proxy call is what installs. The
       # wasm32 target comes from rust-toolchain.toml, so its absence means the
@@ -188,7 +203,7 @@ jobs:
           rustup show active-toolchain
           rustup target list --installed | grep -qx wasm32-unknown-unknown
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry/index
@@ -211,7 +226,7 @@ jobs:
     name: artifact freshness + size budget
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The compiler identity is load-bearing for this job specifically: codegen
       # differs between rustc versions, so a toolchain that is not the pinned one
@@ -224,7 +239,7 @@ jobs:
           rustup target list --installed | grep -qx wasm32-unknown-unknown
           node --version
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry/index
@@ -314,7 +329,7 @@ jobs:
       # ready to drop into pkg/ — not a log line telling them to rebuild.
       - name: Upload the rebuilt artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkg-rebuilt-${{ github.sha }}
           path: ${{ runner.temp }}/pkg-rebuilt
@@ -350,7 +365,7 @@ jobs:
     name: differential + parity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: groloo-core
 
@@ -375,7 +390,7 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: Shon1a/Groloo-Web
           path: Groloo-Web
@@ -384,7 +399,7 @@ jobs:
           # <PRE_PORT_REV>:`, and a depth-1 checkout has no revision to quote.
           fetch-depth: 0
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: Shon1a/Groloo-server
           path: Groloo-server
@@ -393,7 +408,7 @@ jobs:
       # >= 23.6, because tests/parity imports the twins as .ts and executes the
       # bytes in the repository: node's own type stripping is what makes "imported
       # and run" true rather than "transpiled and run".
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -407,7 +422,7 @@ jobs:
           rustup target list --installed | grep -qx wasm32-unknown-unknown
           node --version
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry/index
