@@ -177,14 +177,55 @@ function verifyAgainstManifest(dir) {
  * different flags than the release build is a freshness check that reports a
  * difference on every run and teaches everyone to ignore it. That is not
  * hypothetical — it is exactly how the harness ended up gating a 319,319-byte
- * build while 319,143 bytes shipped. */
-function stagedBuild() {
+ * build while 319,143 bytes shipped.
+ *
+ * THE REVISION STAMP IS PINNED TO THE VENDORED ARTIFACT'S, and without that this
+ * check cannot pass twice. `build.rs` bakes `git rev-parse --short=7 HEAD` into the
+ * module as `<semver>+g<rev>`, so a rebuild stamps the revision it is standing on —
+ * necessarily NOT the one the vendored artifact recorded, because that artifact was
+ * built before the commit that carries it. The two differ by seven hex characters
+ * and by nothing else, which is why the failure presents as two builds of identical
+ * length and unequal hash: 434,880 bytes against 434,880 bytes.
+ *
+ * That is exactly what it did. The gate went green at `44166aa` — the revision in
+ * the vendored manifest — and red on the very next commit and every commit after,
+ * on a stamp rather than on a single byte of behaviour. Four runs, none of which
+ * reached a fixture.
+ *
+ * `.github/workflows/ci.yml`'s artifact job already solved this and says why in its
+ * own words: "a rebuild at HEAD can never reproduce that field". It reads the
+ * committed module's stamp and feeds it back in. This is the same move, through the
+ * `GROLOO_CORE_GIT_SHA` hook `build.rs` exposes for precisely this purpose.
+ *
+ * IT IS NOT AN ESCAPE HATCH, and the distinction is the whole reason this is
+ * acceptable in a check documented as having none. The rev is provenance, not
+ * behaviour — `scripts/build-wasm.mjs` says so where it derives `gitSha`, and
+ * nothing downstream branches on it. Every other byte is still compared, so the
+ * failure this gate exists to catch (a source change that never got re-vendored)
+ * still lands: the code section moves, and no stamp can hide that. What the pin
+ * removes is the one difference that carries no information.
+ *
+ * Pinning also makes the staged build cacheable across commits, which the mtime
+ * check alone no longer covers — so a staged build stamped with a DIFFERENT rev is
+ * treated as stale, or the second run would compare against the first one's stamp.
+ *
+ * `null` when the artifact declares no revision (`build-wasm.mjs` writes null for a
+ * tree with no commits, and means it). There is then no revision to reproduce, the
+ * variable is left unset, and the behaviour is what it was before this note. */
+function stagedBuild(pinnedRev) {
   const manifestPath = join(STAGE_DIR, 'manifest.json');
-  if (!existsSync(manifestPath) || newestMtime(crateSources()) > statSync(manifestPath).mtimeMs) {
-    execFileSync('node', [join(REPO, 'scripts', 'build-wasm.mjs'), '--no-vendor'], {
-      cwd: REPO, stdio: 'inherit',
-    });
-  }
+  const staged = existsSync(manifestPath)
+    ? JSON.parse(readFileSync(manifestPath, 'utf8'))
+    : null;
+  const stale = !staged
+    || newestMtime(crateSources()) > statSync(manifestPath).mtimeMs
+    || (pinnedRev != null && staged.gitSha !== pinnedRev);
+  if (!stale) return staged;
+  const env = { ...process.env };
+  if (pinnedRev != null) env.GROLOO_CORE_GIT_SHA = pinnedRev;
+  execFileSync('node', [join(REPO, 'scripts', 'build-wasm.mjs'), '--no-vendor'], {
+    cwd: REPO, stdio: 'inherit', env,
+  });
   return JSON.parse(readFileSync(manifestPath, 'utf8'));
 }
 
@@ -205,7 +246,11 @@ function newestMtime(paths) {
   }
 }
 
-/** The check with no escape hatch: what this tree builds must BE what ships. */
+/** The check with no escape hatch: what this tree builds must BE what ships.
+ *
+ *  The staged build was stamped with the SHIPPED artifact's revision (see
+ *  `stagedBuild`), so a difference reported here is a difference in what the code
+ *  compiles to and never merely in which commit compiled it. */
 function assertShippedIsCurrent(shipped, staged) {
   const drift = [WASM, GLUE]
     .filter((n) => shipped.files[n].sha256 !== staged.files?.[n]?.sha256)
@@ -216,7 +261,9 @@ function assertShippedIsCurrent(shipped, staged) {
     `${drift.join('\n')}\n\n` +
     `Gating build ${shipped.build} would prove something about bytes nobody is going to run. ` +
     'Re-vendor first:\n\n    node scripts/build-wasm.mjs --prune\n\n' +
-    '…then update the pin in Groloo-Web/src/lib/heart.ts and run the gate again.',
+    '…then update the pin in Groloo-Web/src/lib/heart.ts and run the gate again.\n\n' +
+    `The build stamp is not the cause: this rebuild was pinned to ${shipped.gitSha ?? 'unknown'}, ` +
+    'the revision the vendored artifact records, so the difference above is in the compiled code.',
   );
 }
 
@@ -293,7 +340,7 @@ export const SHIPPED = (() => {
 /** The core Groloo-Web ships — verified against its manifest, against a fresh
  * build of this tree, and cross-checked against the shell's pin. */
 export async function loadNew() {
-  assertShippedIsCurrent(SHIPPED.manifest, stagedBuild());
+  assertShippedIsCurrent(SHIPPED.manifest, stagedBuild(SHIPPED.manifest.gitSha));
 
   mkdirSync(MIRROR_DIR, { recursive: true });
   // wasm-bindgen emits ESM with a `.js` extension. Without a package.json beside
