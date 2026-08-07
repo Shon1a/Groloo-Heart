@@ -35,8 +35,8 @@
  *   addon_catalogs                 addonClient.ts:147-156
  *   order_langs                    addonClient.ts:32-38
  *   validate_manifest        × 2   server.js:1947 AND stores/addons.ts:233
- *   rank_streams                   DetailModal.tsx:476-477
- *   media key round trip           DetailModal.tsx:319 / :299 / :433 / :458
+ *   rank_streams                   DetailModal.tsx:594-595
+ *   media key round trip           DetailModal.tsx:404 / :299 / :433 / :458
  *
  * The private functions (`mapAddonStream`, `detectQuality`, `extractSize`,
  * `parseStreamLangs`, `mapCatalogMeta`) are not exported and are therefore reached
@@ -822,7 +822,7 @@ const validateVsClient = {
  * 12. rank_streams
  * ------------------------------------------------------------------------ */
 
-/* `DetailModal.tsx:476-477` is an expression inside a React component, not a
+/* `DetailModal.tsx:594-595` is an expression inside a React component, not a
  * function and not exported. It is transcribed below and PINNED to its source line
  * by `assertSourceLine`, which re-reads the real file on every run: if that line
  * changes, this family fails rather than silently comparing against a fossil.
@@ -846,8 +846,8 @@ const WHY_RANK_SIZE = 'The twin sorts on ONE key — the five-value `qualityRank
 const WHY_RANK_FILTER = 'STRUCTURAL, and deliberate. The twin FILTERS — a stream whose `langs` do not include the wanted one is removed from the array and the UI never sees it. The core never drops anything: every input stream comes back, with `blocked`/`blockedBy` set, and `preferLangs` is an ORDERING key rather than a filter, because a source in the wrong language is still a source and the alternative is an empty list with nothing to explain it. This is the same rule that makes `VideoPlayer.tsx:190`\'s "Source unavailable" wrong on a 4K HEVC stream a TV panel decodes fine: the shell must be able to tell "this device can play none of these" from "the add-ons returned nothing", and only a response that carries the refused streams can do that. The consumer changes shape here — `rank_streams` returns indices and verdicts, not a filtered array — so this is the one twin whose deletion is a call-site rewrite rather than a substitution.';
 
 const rankStreams = {
-  name: 'rank_streams  (vs DetailModal.tsx:476-477)',
-  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:40-41 qualityRank + DetailModal.tsx:476 and :477', verdict: 'rewrite', obligation: 'rank_streams answers {ranked, summary} with indices and blocked reasons, not a filtered array — the two call sites are a UI change, not a substitution' },
+  name: 'rank_streams  (vs DetailModal.tsx:594-595)',
+  twin: { at: 'Groloo-Web/src/lib/addonClient.ts:40-41 qualityRank + DetailModal.tsx:594 and :595', verdict: 'rewrite', obligation: 'rank_streams answers {ranked, summary} with indices and blocked reasons, not a filtered array — the two call sites are a UI change, not a substitution' },
   ts: 'list.filter(langs).sort(qualityRank desc)   [transcribed from JSX, pinned to its source line]',
   rust: 'rank_streams(streamsJson, "{}") -> envelope{ data: { ranked, summary } }, projected back to streams',
   fixtures: [
@@ -885,8 +885,13 @@ const rankStreams = {
     },
   ],
   run(t, core, f) {
-    /* :476-477, moved from :361-362 (and :281-282 before that) when DetailModal grew
-     * the language-classification helpers above the component.
+    /* :594-595, moved from :526-527 (the add-on source-kind and add-on-meta work), from :483-484 (which the transcription had NOT been re-pinned to
+     * — it still read :476-477, seven lines behind the file, and the run was failing on the
+     * pin rather than on the comparison), from :361-362 and from :281-282 before that.
+     * The latest move is the add-on fan-out becoming incremental: `collectAddonStreams`
+     * publishes per add-on now, and the effect and language-default comments above the
+     * component grew with it. The EXPRESSION is untouched — the twin still filters by
+     * language and sorts by `qualityRank` alone, which is what this family compares.
      *
      * THE :351 TRAP IS GONE, and that is worth recording rather than just deleting.
      * This comment used to warn that assertSourceLine's hint pointed at a DIFFERENT
@@ -902,9 +907,9 @@ const rankStreams = {
      * `bestFor` is deliberately NOT transcribed here. It is a play-time choice, not a
      * ranking: `shownStreams` is still exactly the filter-then-quality-sort the core's
      * `rank_streams` is the twin of, and that is what this family compares. */
-    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 477, SHELL_SORT_SOURCE,
+    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 595, SHELL_SORT_SOURCE,
       'the parity corpus transcribes this sort because it is an expression inside JSX and cannot be imported.');
-    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 476, SHELL_FILTER_SOURCE,
+    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 594, SHELL_FILTER_SOURCE,
       'the parity corpus transcribes this filter because it is an expression inside JSX and cannot be imported.');
     const tsOut = shellShown(t.client.qualityRank, f.list.slice(), f.lang);
     const env = unwrap(core.rank_streams(S(f.list), '{}'), 'rank_streams');
@@ -933,8 +938,8 @@ const shellMediaKey = (id, ep) => (ep ? `${id}:S${ep.season}E${ep.ep}` : String(
 const shellVideoId = (imdb, ep) => (ep ? `${imdb}:${ep.season}:${ep.ep}` : String(imdb));
 
 const mediaKey = {
-  name: 'media key round trip  (vs DetailModal.tsx:319 / :299 / :433)',
-  twin: { at: 'Groloo-Web/src/components/DetailModal/DetailModal.tsx:319, :299, :433, :458', verdict: 'unreachable', obligation: 'MediaRef is not exported at the boundary, so there is nothing for these expressions to be replaced BY. The round trip is proven; the deletion is not available.' },
+  name: 'media key round trip  (vs DetailModal.tsx:404 / :299 / :433)',
+  twin: { at: 'Groloo-Web/src/components/DetailModal/DetailModal.tsx:404, :299, :433, :458', verdict: 'unreachable', obligation: 'MediaRef is not exported at the boundary, so there is nothing for these expressions to be replaced BY. The round trip is proven; the deletion is not available.' },
   ts: '`${id}:S${season}E${ep}` and `${imdb}:${season}:${ep}`   [transcribed from JSX, pinned]',
   rust: 'continue_watching().key + resume_position(key) + addon_resource_path(videoId)',
   fixtures: [
@@ -945,8 +950,8 @@ const mediaKey = {
     { id: 'a-double-digit-episode', expect: 'match', mediaId: 'tt0903747', ep: { season: 10, ep: 22 }, type: 'series' },
   ],
   run(t, core, f) {
-    /* :319, moved from :312 (and :188 before that). Unique in the file. */
-    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 319, SHELL_KEY_SOURCE,
+    /* :404, moved from :361 (and :319, :312, :188 before that). Unique in the file. */
+    assertSourceLine('src/components/DetailModal/DetailModal.tsx', 404, SHELL_KEY_SOURCE,
       'the parity corpus transcribes the media-key builder because it is an expression inside JSX.');
     const key = shellMediaKey(f.mediaId, f.ep);
     const videoId = shellVideoId(f.mediaId, f.ep);
@@ -1067,7 +1072,7 @@ const CANARY = {
       family: {
         name: 'pin',
         run() {
-          assertSourceLine('src/components/DetailModal/DetailModal.tsx', 477,
+          assertSourceLine('src/components/DetailModal/DetailModal.tsx', 595,
             '.sort((a, b) => somethingElse(a, b))',
             'this canary asserts that the transcription pin fails loudly when the source moves.');
           return { tsOut: null, coreOut: null, notes: [] };
