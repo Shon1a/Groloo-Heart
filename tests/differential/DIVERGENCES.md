@@ -154,7 +154,7 @@ listed in `UNCOMPARABLE`. Its real twin is TypeScript (`stores/addons.ts:203`,
 
 `stores/addons.ts:203` tests `/manifest\.json$/` against the whole string
 including the query, so it never matches a query-bearing URL and appends a second
-segment. By the Stremio convention documented in that same file's header, a
+segment. By the add-on protocol's convention documented in that same file's header, a
 *configured* add-on packs its credentials into the URL — so the add-ons that
 break are exactly the credentialed ones.
 

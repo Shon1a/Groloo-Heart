@@ -763,7 +763,7 @@ pub fn resume_position(library_json: &str, key: &str) -> String {
 ///     here → null                               (rejects)
 /// ```
 ///
-/// By the Stremio convention documented in that same file's header, a
+/// By the add-on protocol's convention documented in that same file's header, a
 /// *configured* add-on packs its credentials into the URL — so the add-ons that
 /// break are exactly the credentialed ones. This divergence is only observable
 /// once the TS twin is deleted; until then old-vs-new is Rust-vs-Rust and passes
@@ -1376,12 +1376,12 @@ mod tests {
     #[test]
     fn merge_official_rejects_a_stream_bearing_card_and_warns() {
         let payload = r#"{"schema":1,"addons":[
-            {"id":"pirate","section":"official","name":"P","transportUrl":"http://x/manifest.json"}]}"#;
+            {"id":"streamer","section":"official","name":"P","transportUrl":"http://x/manifest.json"}]}"#;
         let s = merge_official(INLINE, payload);
         let data = ok_data(&s);
         assert_eq!(ids(&data), vec!["upcoming", "catalog"]);
         assert_eq!(warning_codes(&s), vec!["skipped.has_stream"]);
-        assert_eq!(env(&s)["warnings"][0]["subject"], Value::from("pirate"));
+        assert_eq!(env(&s)["warnings"][0]["subject"], Value::from("streamer"));
     }
 
     #[test]

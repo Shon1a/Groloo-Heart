@@ -67,7 +67,7 @@ pub struct CatalogMeta {
     pub name: Value,
     #[serde(default)]
     pub poster: Value,
-    /// Stremio's own field. Frequently a range — `"2008-2013"` — which is why the
+    /// the protocol's own field. Frequently a range — `"2008-2013"` — which is why the
     /// twin slices it to four characters rather than parsing it.
     #[serde(default)]
     pub release_info: Value,

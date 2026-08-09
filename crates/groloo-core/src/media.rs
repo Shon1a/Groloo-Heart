@@ -29,7 +29,7 @@
 //! | Format | Example | Produced by | Consumed by |
 //! |---|---|---|---|
 //! | media key | `tt0903747:S1E4` | [`MediaRef::media_key`] | resume/progress map, [`crate::types::LibraryItem::media_key`], [`crate::library`]'s prefix sweep |
-//! | video id | `tt0903747:1:4` | [`MediaRef::stream_video_id`] | the Stremio `stream` resource path — the *wire* |
+//! | video id | `tt0903747:1:4` | [`MediaRef::stream_video_id`] | the add-on `stream` resource path — the *wire* |
 //!
 //! They share the `id` prefix and the `:` separator, which is why the temptation
 //! to collapse them is real and why this table is in the module doc rather than a
@@ -45,7 +45,7 @@
 //! `'movie' | 'series'`; `lib/types.ts:12` types the field as the union of both,
 //! and five call sites patch over it with `=== 'tv' || === 'series'`.
 //!
-//! The canonical form here is **Stremio's** — see [`MediaKind`]. The add-on
+//! The canonical form here is **the protocol's** — see [`MediaKind`]. The add-on
 //! protocol is the thing being ported and its wire vocabulary is `series`: the
 //! resource path requires it and `manifest.types` is matched against it. `tv` has
 //! exactly one producer and one consumer (`/api/meta?type=`), so it is the
@@ -74,7 +74,7 @@ pub const MEDIA_KEY_SEPARATOR: &str = ":";
 ///
 /// Closed on purpose, at two arms, because those are the only two namespaces
 /// GROLOO produces: TMDB numeric ids from every `/api/*` route, IMDb `tt…` ids
-/// from add-on catalogs and from `/api/meta`'s `imdb` field. Stremio itself also
+/// from add-on catalogs and from `/api/meta`'s `imdb` field. the protocol itself also
 /// ships `kitsu:` and `anidb:` namespaces; if a shell ever needs one, this enum
 /// grows an arm and [`MediaRef::parse`] grows a branch — which is a visible,
 /// reviewable change. The alternative (an open `Other(String)`) would let an
@@ -304,7 +304,7 @@ impl MediaRef {
         }
     }
 
-    /// The **add-on video id** — Stremio's wire form for the `stream` resource:
+    /// The **add-on video id** — the protocol's wire form for the `stream` resource:
     /// `tt0111161` for a film, `tt0903747:1:4` for an episode.
     ///
     /// Byte-identical to `DetailModal.tsx:168`/`:268`'s
@@ -386,7 +386,7 @@ pub fn addon_resource_path(resource: &str, media_type: &str, id: &str) -> String
 /// `percent-encoding` because this crate's entire dependency surface is
 /// `serde` + `serde_json` and one twelve-line function is not worth spending
 /// that budget on — the `percent-encoding` crate would also arrive with `url`
-/// behind it in practice, which is how stremio-core reaches 183 lockfile entries.
+/// behind it in practice, which is how the upstream crate reaches 183 lockfile entries.
 ///
 /// One difference from the JS, and it is in our favour: `encodeURIComponent`
 /// throws `URIError` on a lone surrogate. A Rust `&str` cannot hold one, so this

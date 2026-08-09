@@ -13,7 +13,7 @@
 //!
 //! ```json
 //! { "ok": true, "core": "0.2.0+g1a2b3c4", "data": …,
-//!   "warnings": [ {"code":"skipped.has_stream","subject":"pirate","detail":"…"} ],
+//!   "warnings": [ {"code":"skipped.has_stream","subject":"streamer","detail":"…"} ],
 //!   "error": null }
 //! ```
 //!
@@ -290,7 +290,7 @@ mod tests {
             &Envelope::ok(0)
                 .with_warning(Warning::new(
                     WarningCode::SkippedHasStream,
-                    "pirate",
+                    "streamer",
                     "carries a transport",
                 ))
                 .with_warning(Warning::new(WarningCode::PrunedTombstone, "tt9", "expired"))
@@ -301,7 +301,7 @@ mod tests {
             v["warnings"][0]["code"],
             Value::String("skipped.has_stream".into())
         );
-        assert_eq!(v["warnings"][0]["subject"], Value::String("pirate".into()));
+        assert_eq!(v["warnings"][0]["subject"], Value::String("streamer".into()));
         assert_eq!(
             v["warnings"][1]["code"],
             Value::String("pruned.tombstone".into())

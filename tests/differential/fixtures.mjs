@@ -163,10 +163,10 @@ const mergeOfficial = {
       { id: 'catalog', section: 'official', iconCls: 'b'.repeat(40) },
     ]) },
     { id: 'rejects-transport-url', expect: 'match', inline: INLINE_SHIPPED, payload: doc(1, [
-      { id: 'pirate', section: 'official', name: 'P', transportUrl: 'http://x/manifest.json' },
+      { id: 'streamer', section: 'official', name: 'P', transportUrl: 'http://x/manifest.json' },
     ]) },
     { id: 'rejects-stream-resource', expect: 'match', inline: INLINE_SHIPPED, payload: doc(1, [
-      { id: 'pirate2', section: 'official', name: 'P2', resources: ['stream'] },
+      { id: 'streamer2', section: 'official', name: 'P2', resources: ['stream'] },
     ]) },
     { id: 'rejects-stream-on-a-KNOWN-id', expect: 'match', inline: INLINE_SHIPPED, payload: doc(1, [
       { id: 'catalog', section: 'official', name: 'Hijacked', transportUrl: 'http://x/manifest.json' },
@@ -180,7 +180,7 @@ const mergeOfficial = {
     { id: 'mixed-batch-good-and-rejected', expect: 'match', inline: INLINE_SHIPPED, payload: doc(1, [
       { id: '', section: 'official', name: 'idless' },
       { id: 'nebula', section: 'official', name: 'Nebula', version: '2.1.0' },
-      { id: 'pirate', section: 'official', name: 'P', resources: ['stream', 'meta'] },
+      { id: 'streamer', section: 'official', name: 'P', resources: ['stream', 'meta'] },
       { id: 'c1', section: 'community', name: 'community' },
       { id: 'catalog', section: 'official', name: 'Catalog Rows v2', version: '1.4.0' },
       { id: 'quasar', section: 'official', iconCls: '<img>', name: '' },

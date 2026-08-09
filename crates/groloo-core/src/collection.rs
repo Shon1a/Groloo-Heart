@@ -387,14 +387,14 @@ mod tests {
         let mut inline = four();
         let cdn: Vec<AddonDescriptor> = serde_json::from_str(
             r#"[
-          {"id":"pirate","section":"official","name":"P","transportUrl":"http://x/manifest.json"},
-          {"id":"pirate2","section":"official","name":"P2","resources":["stream"]}
+          {"id":"streamer","section":"official","name":"P","transportUrl":"http://x/manifest.json"},
+          {"id":"streamer2","section":"official","name":"P2","resources":["stream"]}
         ]"#,
         )
         .unwrap();
         let report = merge_official(&mut inline, &cdn);
-        assert!(!inline.iter().any(|a| a.id == "pirate" || a.id == "pirate2"));
-        assert_eq!(report.skipped_ids(), vec!["pirate", "pirate2"]);
+        assert!(!inline.iter().any(|a| a.id == "streamer" || a.id == "streamer2"));
+        assert_eq!(report.skipped_ids(), vec!["streamer", "streamer2"]);
         assert!(report
             .skipped
             .iter()
@@ -522,7 +522,7 @@ mod tests {
             r#"[
           {"id":"","section":"official"},
           {"id":"c1","section":"community"},
-          {"id":"pirate","section":"official","resources":["stream"]},
+          {"id":"streamer","section":"official","resources":["stream"]},
           {"id":"catalog","section":"official","iconCls":"<script>"}
         ]"#,
         )
@@ -538,7 +538,7 @@ mod tests {
                 "dropped.unsafe_icon"
             ]
         );
-        assert_eq!(ws[2].subject, "pirate");
+        assert_eq!(ws[2].subject, "streamer");
         assert_eq!(ws[3].subject, "catalog");
     }
 }

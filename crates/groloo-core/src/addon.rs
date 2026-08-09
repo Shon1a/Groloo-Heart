@@ -24,7 +24,7 @@
 //!     here → "https://a.co/x/manifest.json?y=2"                 correct
 //! ```
 //!
-//! By the Stremio convention, a *configured* add-on packs its credentials into
+//! By the add-on protocol's convention, a *configured* add-on packs its credentials into
 //! the URL — so the add-ons that break are exactly the credentialed ones. This is
 //! what an unreachable core costs: not a missing feature, a divergent one.
 //!
@@ -52,7 +52,7 @@
 //! **Query handling: the server wins.** Its `.json($|?)` test runs against the
 //! *pathname*, so a configured add-on's `?` never defeats it. The client's
 //! `/manifest\.json$/` runs against the whole string, never matches a
-//! query-bearing URL, and appends a second segment — and by the Stremio
+//! query-bearing URL, and appends a second segment — and by the add-on protocol's
 //! convention the URLs that carry a query are exactly the *credentialed* ones, so
 //! the client copy fails precisely on the add-ons a user paid for.
 //!

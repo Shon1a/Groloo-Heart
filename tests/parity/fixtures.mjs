@@ -86,7 +86,7 @@ const S = JSON.stringify;
  * behaviour is what the core adopted, so a divergence from the server is a real
  * finding and a divergence from the client is (mostly) the fix. */
 
-const WHY_QUERY = 'The client\'s `/manifest\\.json$/` runs against the WHOLE string including the query, so it never matches a query-bearing URL and appends a second segment — `…?y=2/manifest.json`. The server tests `parsed.pathname` and inserts the segment BEFORE the query. The core took the server\'s rule. By the Stremio convention the URLs that carry a query are exactly the CREDENTIALED ones, so the client copy fails precisely on the add-ons a user paid for; this is the strongest single argument in the increment and the reason `addon.rs` was worth exposing at all.';
+const WHY_QUERY = 'The client\'s `/manifest\\.json$/` runs against the WHOLE string including the query, so it never matches a query-bearing URL and appends a second segment — `…?y=2/manifest.json`. The server tests `parsed.pathname` and inserts the segment BEFORE the query. The core took the server\'s rule. By add-on protocol convention the URLs that carry a query are exactly the CREDENTIALED ones, so the client copy fails precisely on the add-ons a user paid for; this is the strongest single argument in the increment and the reason `addon.rs` was worth exposing at all.';
 
 const WHY_HOST = 'Neither TypeScript copy won outright, so the core is a third answer and this divergence from the server is deliberate. The server rejects EVERY schemeless string, which loses `v3-cinemeta.strem.io/manifest.json` — a paste people actually make. The client prepends `https://` to anything at all, which turns a typo into a URL that fails later as an opaque network error. The core accepts a schemeless string only when its authority is host-shaped (`addon::looks_like_host`: host characters only, plus a dot or a port), which accepts every input the client accepted FOR A REASON and rejects the ones it accepted by accident. The consequence for the server is that it will keep rejecting a paste the browser now accepts — the two are not unified on this axis and the ledger says so.';
 
@@ -111,16 +111,16 @@ const URL_LEDGER = [
     client: { d: 'D6-query', why: WHY_QUERY },
   },
   {
-    id: 'a-debrid-key-packed-into-the-path',
-    url: 'https://torrentio.strem.fun/realdebrid=KEY|torbox=K2,sort=qualitysize/manifest.json',
+    id: 'a-config-key-packed-into-the-path',
+    url: 'https://a.co/provider=KEY|other=K2,sort=quality/manifest.json',
     server: 'match', client: 'match',
   },
   {
     /* The one that costs a paying user their add-on: `|`-packed config AND a
      * query. The client appends a second segment after the query; the core keeps
      * the config bytes untouched and inserts the segment before the `?`. */
-    id: 'a-debrid-key-and-a-query-together',
-    url: 'https://a.co/realdebrid=KEY|torbox=K2/addon?u=1',
+    id: 'a-config-key-and-a-query-together',
+    url: 'https://a.co/provider=KEY|other=K2/addon?u=1',
     server: 'match',
     client: { d: 'D6-query', why: WHY_QUERY },
   },
@@ -300,7 +300,7 @@ const baseUrl = {
     { id: 'a-manifest-url', expect: 'match', url: 'https://a.co/x/manifest.json' },
     { id: 'a-directory', expect: 'match', url: 'https://a.co/' },
     { id: 'a-bare-origin-has-no-directory', expect: 'match', url: 'https://a.co' },
-    { id: 'a-debrid-configured-url', expect: 'match', url: 'https://torrentio.strem.fun/realdebrid=KEY|torbox=K2/manifest.json' },
+    { id: 'a-configured-url-with-packed-keys', expect: 'match', url: 'https://a.co/provider=KEY|other=K2/manifest.json' },
     { id: 'a-url-with-a-query', expect: 'match', url: 'https://a.co/x/manifest.json?q=1' },
     { id: 'no-slash-at-all', expect: 'match', url: 'noslash' },
     { id: 'the-empty-string', expect: 'match', url: '' },
@@ -335,7 +335,7 @@ const hasResource = {
     { id: 'explicitly-null-resources-and-types', expect: 'match', manifest: M({ resources: null, types: null }) },
     { id: 'a-resource-object-with-no-name', expect: 'match', manifest: M({ resources: [{ noName: 1 }, 'stream'], types: ['movie'] }) },
     { id: 'an-empty-types-list', expect: 'match', manifest: M({ resources: ['stream'], types: [] }) },
-    { id: 'a-debrid-addon-as-it-really-arrives', expect: 'match', manifest: M({ name: 'Torrentio', resources: ['stream'], types: ['movie', 'series', 'anime'], idPrefixes: ['tt', 'kitsu'] }) },
+    { id: 'a-stream-addon-as-it-really-arrives', expect: 'match', manifest: M({ name: 'Streamer', resources: ['stream'], types: ['movie', 'series', 'anime'], idPrefixes: ['tt', 'kitsu'] }) },
   ],
   run(t, core, f) {
     // Compared as one record per manifest rather than four fixtures, so the report
@@ -366,9 +366,9 @@ const hasResource = {
  * The add-on record is the same one on both sides, so `source` is the same string
  * and any difference in it is a real one. */
 const STREAM_ADDON = {
-  id: 'org.torrentio',
-  url: 'https://a.co/realdebrid=KEY|torbox=K2/manifest.json',
-  manifest: { id: 'org.torrentio', name: 'Torrentio', resources: ['stream', 'catalog'], types: ['movie', 'series'], catalogs: [{ type: 'movie', id: 'top', name: 'Top' }] },
+  id: 'org.streamer',
+  url: 'https://a.co/provider=KEY|other=K2/manifest.json',
+  manifest: { id: 'org.streamer', name: 'Streamer', resources: ['stream', 'catalog'], types: ['movie', 'series'], catalogs: [{ type: 'movie', id: 'top', name: 'Top' }] },
 };
 
 const streamFixture = (id, streams, extra = {}) => ({ id, expect: 'match', body: { streams }, ...extra });
@@ -380,13 +380,13 @@ const streamParse = {
   rust: 'stream_parse(responseJson, addonName) -> envelope{ data: AddonStream[] }',
   fixtures: [
     /* ---- the shapes real add-ons send ---- */
-    streamFixture('a-release-name-with-quality-and-size', [{ name: 'Torrentio', title: 'Movie.2019.1080p.WEB.x264 2.3 GB', url: 'https://a.co/v.mp4' }]),
+    streamFixture('a-release-name-with-quality-and-size', [{ name: 'Streamer', title: 'Movie.2019.1080p.WEB.x264 2.3 GB', url: 'https://a.co/v.mp4' }]),
     streamFixture('name-title-and-description-all-set', [{ name: 'N', title: 'T', description: 'D', url: 'https://a.co/v.mp4' }]),
     streamFixture('no-label-at-all-falls-back-to-Source', [{ url: 'https://a.co/v.mp4' }]),
     streamFixture('several-sources-from-one-addon', [
-      { name: 'Torrentio\n4K', title: '🇬🇧 Movie 2160p HDR 12.4 GB', url: 'https://a.co/a.mkv' },
-      { name: 'Torrentio\n1080p', title: '🇷🇺 Movie 1080p 2.3 GB', url: 'https://a.co/b.mp4' },
-      { name: 'Torrentio\n720p', title: 'Movie 720p 900 MB', url: 'https://a.co/c.mp4' },
+      { name: 'Streamer\n4K', title: '🇬🇧 Movie 2160p HDR 12.4 GB', url: 'https://a.co/a.mkv' },
+      { name: 'Streamer\n1080p', title: '🇷🇺 Movie 1080p 2.3 GB', url: 'https://a.co/b.mp4' },
+      { name: 'Streamer\n720p', title: 'Movie 720p 900 MB', url: 'https://a.co/c.mp4' },
     ]),
 
     /* ---- language markers, including the malformed ones ---- */
@@ -557,7 +557,7 @@ const resourcePath = {
     if (f.resource === 'stream') {
       await t.client.collectAddonStreams(f.id, f.type);
     } else {
-      await t.client.fetchAddonCatalog({ addonId: STREAM_ADDON.id, addonName: 'Torrentio', type: f.type, id: f.id, name: 'x', base });
+      await t.client.fetchAddonCatalog({ addonId: STREAM_ADDON.id, addonName: 'Streamer', type: f.type, id: f.id, name: 'x', base });
     }
     const asked = t.requested()[0];
     const env = unwrap(core.addon_resource_path(f.resource, f.type, f.id), 'addon_resource_path');
@@ -569,7 +569,7 @@ const resourcePath = {
  * 7. catalog_metas
  * ------------------------------------------------------------------------ */
 
-const CAT = { addonId: 'org.torrentio', addonName: 'Torrentio', type: 'movie', id: 'top', name: 'Top', base: 'https://a.co/realdebrid=KEY|torbox=K2/' };
+const CAT = { addonId: 'org.streamer', addonName: 'Streamer', type: 'movie', id: 'top', name: 'Top', base: 'https://a.co/provider=KEY|other=K2/' };
 const metaFixture = (id, metas, extra = {}) => ({ id, expect: 'match', body: { metas }, ...extra });
 
 const catalogMetas = {
