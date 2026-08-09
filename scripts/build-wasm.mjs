@@ -7,6 +7,27 @@
  *   node scripts/build-wasm.mjs --out <dir>     # vendor somewhere else
  *   node scripts/build-wasm.mjs --no-vendor     # leave it in tests/.artifacts/build
  *
+ * ── RE-VENDOR ON LINUX. THE BYTES ARE HOST-DEPENDENT. ─────────────────────────
+ *
+ * The same source, the same rustc (1.96.1) and the same wasm-bindgen (0.2.126)
+ * produce DIFFERENT wasm on different hosts:
+ *
+ *   linux    434,880 bytes
+ *   windows  434,641 bytes      — 239 bytes smaller, every time
+ *
+ * Measured, not theorised: CI rebuilt the tree and got the linux figure while a
+ * local Windows build of the identical commit got the other, and the harness had
+ * already ruled out the build stamp (it pins the rebuild to the revision the
+ * vendored artifact records).
+ *
+ * THE CONSEQUENCE IS A GATE THAT CANNOT PASS. `assertShippedIsCurrent` rebuilds
+ * and compares against the vendored artifact, so vendoring from Windows makes
+ * `differential + parity` fail on every subsequent push — the artifact is not
+ * what CI's tree builds, and CI is the tree that matters. It reads exactly like a
+ * stale pin, which is how an hour went into re-vendoring a core that was fine.
+ *
+ * So: run this on linux (or WSL, or a container). A Windows run is still useful
+ * for `--no-vendor`, where nothing is pinned to the output. */
  * ── WHY THIS EXISTS, when .github/scripts/build-wasm.sh already builds ─────────
  *
  * That script produces bytes. It does not produce an IDENTITY, and the identity is
