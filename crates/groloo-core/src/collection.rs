@@ -393,7 +393,9 @@ mod tests {
         )
         .unwrap();
         let report = merge_official(&mut inline, &cdn);
-        assert!(!inline.iter().any(|a| a.id == "streamer" || a.id == "streamer2"));
+        assert!(!inline
+            .iter()
+            .any(|a| a.id == "streamer" || a.id == "streamer2"));
         assert_eq!(report.skipped_ids(), vec!["streamer", "streamer2"]);
         assert!(report
             .skipped

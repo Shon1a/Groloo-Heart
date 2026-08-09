@@ -301,7 +301,10 @@ mod tests {
             v["warnings"][0]["code"],
             Value::String("skipped.has_stream".into())
         );
-        assert_eq!(v["warnings"][0]["subject"], Value::String("streamer".into()));
+        assert_eq!(
+            v["warnings"][0]["subject"],
+            Value::String("streamer".into())
+        );
         assert_eq!(
             v["warnings"][1]["code"],
             Value::String("pruned.tombstone".into())
