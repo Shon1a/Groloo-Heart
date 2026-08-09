@@ -27,7 +27,8 @@
  * stale pin, which is how an hour went into re-vendoring a core that was fine.
  *
  * So: run this on linux (or WSL, or a container). A Windows run is still useful
- * for `--no-vendor`, where nothing is pinned to the output. */
+ * for `--no-vendor`, where nothing is pinned to the output.
+ *
  * ── WHY THIS EXISTS, when .github/scripts/build-wasm.sh already builds ─────────
  *
  * That script produces bytes. It does not produce an IDENTITY, and the identity is
