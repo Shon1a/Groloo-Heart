@@ -2414,9 +2414,9 @@ mod tests {
                  {"name":"no url, dropped"},
                  {"url":"https://a.co/w.mp4","behaviorHints":{"lang":"ka"}}
                ]}"#,
-                "Torrentio",
+                "Streamer",
             ),
-            r#"[{"source":"Torrentio","label":"🇬🇧 Provider\nMovie 1080p 2.3 GB","quality":"1080p","size":"2.3 GB","kind":"hls","url":"https://a.co/v.m3u8","langs":["en"]},{"source":"Torrentio","label":"Source","quality":"","size":null,"kind":"url","url":"https://a.co/w.mp4","langs":["ka"]}]"#,
+            r#"[{"source":"Streamer","label":"🇬🇧 Provider\nMovie 1080p 2.3 GB","quality":"1080p","size":"2.3 GB","kind":"hls","url":"https://a.co/v.m3u8","langs":["en"]},{"source":"Streamer","label":"Source","quality":"","size":null,"kind":"url","url":"https://a.co/w.mp4","langs":["ka"]}]"#,
         );
     }
 
@@ -2438,12 +2438,12 @@ mod tests {
     fn stream_parse_warns_about_what_it_could_not_read() {
         let v = env(&stream_parse(
             r#"{"streams":[{"url":"a"},42,{"url":"b"}]}"#,
-            "Torrentio",
+            "Streamer",
         ));
         assert_eq!(v["ok"], Value::Bool(true), "a bad row is not a failed call");
         assert_eq!(v["data"].as_array().map(Vec::len), Some(2));
         assert_eq!(v["warnings"][0]["code"], Value::from("dropped.bad_item"));
-        assert_eq!(v["warnings"][0]["subject"], Value::from("Torrentio"));
+        assert_eq!(v["warnings"][0]["subject"], Value::from("Streamer"));
     }
 
     /// **U-coerce at the boundary.** The add-on sent two sources; the user must see
@@ -2455,7 +2455,7 @@ mod tests {
         let v = env(&stream_parse(
             r#"{"streams":[{"name":1080,"url":"https://a.co/v.mp4"},
                            {"name":"good","url":"https://a.co/w.mp4","behaviorHints":{"videoSize":"9.2 GB"}}]}"#,
-            "Torrentio",
+            "Streamer",
         ));
         assert_eq!(v["ok"], Value::Bool(true));
         assert_eq!(v["data"].as_array().map(Vec::len), Some(2));

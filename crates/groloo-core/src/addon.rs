@@ -380,10 +380,10 @@ mod tests {
             n("https://a.co/x/foo.json").as_deref(),
             Some("https://a.co/x/foo.json")
         );
-        // Debrid config survives byte-for-byte: no parse, no re-encode.
+        // Packed config survives byte-for-byte: no parse, no re-encode.
         assert_eq!(
-            n("https://a.co/|torbox=KEY|,rd=X/manifest.json").as_deref(),
-            Some("https://a.co/|torbox=KEY|,rd=X/manifest.json")
+            n("https://a.co/|other=KEY|,pv=X/manifest.json").as_deref(),
+            Some("https://a.co/|other=KEY|,pv=X/manifest.json")
         );
 
         // — the trailing slash: the CLIENT's rule won —
@@ -461,12 +461,12 @@ mod tests {
         );
         // × `|`-packed debrid config, byte-for-byte: no `%7C`, no `%2C`.
         assert_eq!(
-            n("https://a.co/|torbox=KEY|,rd=X/manifest.json/").as_deref(),
-            Some("https://a.co/|torbox=KEY|,rd=X/manifest.json")
+            n("https://a.co/|other=KEY|,pv=X/manifest.json/").as_deref(),
+            Some("https://a.co/|other=KEY|,pv=X/manifest.json")
         );
         assert_eq!(
-            n("https://a.co/|torbox=KEY|,rd=X/").as_deref(),
-            Some("https://a.co/|torbox=KEY|,rd=X/manifest.json")
+            n("https://a.co/|other=KEY|,pv=X/").as_deref(),
+            Some("https://a.co/|other=KEY|,pv=X/manifest.json")
         );
         // × both at once, which is what a configured add-on's link actually looks
         // like once a browser has been near it.
@@ -509,7 +509,7 @@ mod tests {
             // URL was already broken. It only means something now.
             "https://a.co/manifest.json/",
             "https://a.co/x/manifest.json/?y=2",
-            "https://a.co/|torbox=KEY|,rd=X/manifest.json/",
+            "https://a.co/|other=KEY|,pv=X/manifest.json/",
             "groloo://a.co/cfg=a|b,c",
             "stremio://a.co/x",
             "a.co/x",
